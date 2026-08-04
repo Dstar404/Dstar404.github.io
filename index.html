@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio Archive</title>
+    <style>
+        /* 1. Global Settings & Black/Yellow Theme */
+        :root { 
+            --bg-color: #0a0a0a; 
+            --text-color: #ffffff; 
+            --yellow: #FFD700; 
+        }
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        html { 
+            scroll-behavior: smooth; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+        }
+        body { overflow-x: hidden; }
+        
+        /* 2. Custom Cursor (Hidden on Mobile) */
+        @media (pointer: fine) {
+            html { cursor: none; }
+        }
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 35px; height: 35px;
+            border: 2px solid var(--yellow); border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
+            z-index: 9999; transition: transform 0.15s ease-out, background-color 0.2s;
+        }
+        .cursor.hovering { 
+            background-color: rgba(255, 215, 0, 0.4); 
+            transform: translate(-50%, -50%) scale(1.5); 
+        }
+        @media (pointer: coarse) {
+            .cursor { display: none !important; }
+        }
+        
+        /* 3. Navigation Bar */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
+        }
+        .cv-btn { 
+            background: var(--yellow); color: #000; padding: 10px 20px; 
+            text-decoration: none; font-weight: bold; border-radius: 4px; transition: 0.3s;
+        }
+        .cv-btn:hover { background: #fff; }
+        .menu { list-style: none; display: flex; gap: 30px; }
+        .menu a { 
+            color: #fff; text-decoration: none; font-weight: 500; 
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        .menu a:hover { color: var(--yellow); }
+        
+        /* Mobile Menu Fix */
+        @media (max-width: 768px) {
+            nav { padding: 15px 5%; flex-direction: column; gap: 12px; }
+            .cv-btn { padding: 6px 15px; font-size: 0.9rem; }
+            .menu { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .menu a { font-size: 0.85rem; }
+        }
+        
+        /* 4. Page Sections */
+        section { 
+            min-height: 100vh; padding: 120px 5% 50px; 
+            display: flex; flex-direction: column; justify-content: center; 
+        }
+        @media (max-width: 768px) {
+            section { padding-top: 140px; } /* Extra padding for stacked mobile menu */
+        }
+        h2 { color: var(--yellow); font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
+        @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
+        
+        /* About Section (Portrait Removed) */
+        .about-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 1000px;
+        }
+        .about-text { font-size: 1.2rem; line-height: 1.8; color: #ddd; }
+        
+        /* Skills with Logos */
+        .skills-title { color: var(--yellow); margin: 30px 0 15px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+        .skills { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .skill-tag { 
+            background: #111; border: 1px solid #333; 
+            padding: 8px 15px; border-radius: 20px; color: #fff; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .skill-tag:hover { border-color: var(--yellow); color: var(--yellow); }
+        .skill-tag img { width: 16px; height: 16px; object-fit: contain; }
+        
+        /* Experience Timeline */
+        .exp-title { color: var(--yellow); margin: 40px 0 20px; font-size: 1.5rem; text-transform: uppercase; }
+        .timeline { border-left: 2px solid #333; padding-left: 20px; display: flex; flex-direction: column; gap: 25px; }
+        .exp-item { position: relative; }
+        .exp-item::before { 
+            content: ''; position: absolute; left: -27px; top: 6px; 
+            width: 12px; height: 12px; background: var(--yellow); border-radius: 50%; 
+        }
+        .exp-item h4 { color: #fff; font-size: 1.3rem; margin-bottom: 5px; }
+        .exp-item p { color: #aaa; font-size: 1rem; line-height: 1.4; }
+        
+        /* Work Section & Filters */
+        .filters { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn { 
+            background: transparent; color: #fff; border: 1px solid #555; 
+            padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s;
+        }
+        @media (max-width: 768px) {
+            .filter-btn { padding: 6px 12px; font-size: 0.85rem; }
+        }
+        .filter-btn.active, .filter-btn:hover { 
+            background: var(--yellow); color: #000; border-color: var(--yellow); 
+        }
+        
+        /* Masonry Grid */
+        .masonry { column-count: 3; column-gap: 20px; }
+        @media (max-width: 900px) { .masonry { column-count: 2; } }
+        /* Mobile adjustment: keep 2 columns so items are smaller, reduce gaps */
+        @media (max-width: 600px) { 
+            .masonry { column-count: 2; column-gap: 10px; } 
+        }
+        
+        .item { 
+            break-inside: avoid; margin-bottom: 20px; background: #1a1a1a; 
+            border-radius: 8px; overflow: hidden; border: 1px solid #333;
+            cursor: pointer; /* Indicates it can be clicked */
+            transition: transform 0.2s;
+        }
+        @media (max-width: 600px) { .item { margin-bottom: 10px; } }
+        .item:hover { transform: scale(1.02); border-color: var(--yellow); }
+        .item img { width: 100%; display: block; pointer-events: none; }
+        .item iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; pointer-events: none; }
+        .item-info { padding: 15px; text-align: center; color: #fff; font-size: 0.95rem; }
+        @media (max-width: 600px) { .item-info { padding: 8px; font-size: 0.75rem; } }
+        
+        /* Contact Section */
+        .contact-box { 
+            background: #111; border: 2px solid var(--yellow); padding: 40px; 
+            border-radius: 10px; max-width: 500px; display: flex; flex-direction: column; gap: 15px; 
+        }
+        .contact-box p { color: #aaa; margin-bottom: 10px; font-size: 1.1rem; }
+        .contact-box a { 
+            color: #fff; text-decoration: none; font-size: 1.5rem; transition: color 0.3s; 
+        }
+        .contact-box a:hover { color: var(--yellow); }
+        @media (max-width: 600px) { .contact-box a { font-size: 1.2rem; } .contact-box { padding: 25px; } }
+
+        /* Lightbox Overlay for Click-to-View */
+        .lightbox {
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img, .lightbox iframe {
+            max-width: 95%; max-height: 85vh; border-radius: 8px; display: none;
+            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
+        }
+        .lightbox iframe { width: 90%; aspect-ratio: 16/9; }
+        .lightbox img.active, .lightbox iframe.active { display: block; }
+        .close-btn { 
+            position: absolute; top: 20px; right: 30px; 
+            font-size: 40px; color: var(--yellow); cursor: pointer; 
+            background: #111; border-radius: 50%; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
+    </style>
+</head>
+<body>
+    
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    
+    <!-- Lightbox Overlay -->
+    <div id="lightbox" class="lightbox">
+        <div class="close-btn">&times;</div>
+        <img id="lb-img" src="" alt="Enlarged View">
+        <iframe id="lb-video" src="" allowfullscreen></iframe>
+    </div>
+    
+    <!-- Navigation -->
+    <nav>
+        <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
+        <ul class="menu">
+            <li><a href="#about" class="hover-target">About</a></li>
+            <li><a href="#work" class="hover-target">Archive</a></li>
+            <li><a href="#contact" class="hover-target">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- 1. ABOUT -->
+    <section id="about">
+        <h2>About Me</h2>
+        <div class="about-wrapper">
+
+            <!-- Content -->
+            <div class="about-content">
+                <div class="about-text">
+                    <p>I am a creative professional specializing in fast-paced commercial marketing visuals and dynamic media. I excel at producing striking promotional content, from 3D typography layouts to high-contrast badge graphics featuring price markdowns designed to capture attention and drive engagement.</p>
+                    <br>
+                    <p>When I am away from the timeline, you can usually find me ranking up in Mobile Legends or hanging out with my two large, brown dogs.</p>
+                </div>
+                
+                <!-- Toolkit -->
+                <h3 class="skills-title" style="margin-top: 40px;">My Toolkit</h3>
+                <div class="skills">
+                    <span class="skill-tag hover-target"><img src="https://cdn.simpleicons.org/adobepremierepro/FFD700" alt="Pr"> Premiere Pro</span>
+                    <span class="skill-tag hover-target"><img src="https://cdn.simpleicons.org/adobeaftereffects/FFD700" alt="Ae"> After Effects</span>
+                    <span class="skill-tag hover-target"><img src="https://cdn.simpleicons.org/figma/FFD700" alt="Figma"> Figma</span>
+                    <span class="skill-tag hover-target"><img src="https://cdn.simpleicons.org/canva/FFD700" alt="Canva"> Canva</span>
+                    <span class="skill-tag hover-target"><img src="https://cdn.simpleicons.org/openai/FFD700" alt="ChatGPT"> ChatGPT</span>
+                    <span class="skill-tag hover-target">👕 CLO3D</span>
+                    <span class="skill-tag hover-target">🪄 Magnific AI</span>
+                    <span class="skill-tag hover-target">⚙️ n8n</span>
+                </div>
+
+                <!-- Specialized Techniques -->
+                <h3 class="skills-title">Specialized Techniques</h3>
+                <div class="skills">
+                    <span class="skill-tag hover-target">Motion Tracking</span>
+                    <span class="skill-tag hover-target">Warp Stabilizer</span>
+                    <span class="skill-tag hover-target">Multi-Channel Audio Routing</span>
+                    <span class="skill-tag hover-target">Frame Rate Interpolation</span>
+                    <span class="skill-tag hover-target">Retail Discount Banners</span>
+                </div>
+
+                <!-- Experience Timeline -->
+                <h3 class="exp-title">Experience</h3>
+                <div class="timeline">
+                    <div class="exp-item hover-target">
+                        <h4>Laototo Co Ltd</h4>
+                        <p>Representative & Corporate Management</p>
+                    </div>
+                    <div class="exp-item hover-target">
+                        <h4>Happy Lotto 5/45</h4>
+                        <p>Promotional Scripts & Ad Layouts</p>
+                    </div>
+                    <div class="exp-item hover-target">
+                        <h4>KokKok</h4>
+                        <p>App Promotion & Marketing Design</p>
+                    </div>
+                    <div class="exp-item hover-target">
+                        <h4>Fastwork</h4>
+                        <p>Freelance Creative Professional</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- 2. WORK (ARCHIVE) -->
+    <section id="work">
+        <h2>My Archive</h2>
+        <div class="filters">
+            <button class="filter-btn active hover-target" data-filter="all">All</button>
+            <button class="filter-btn hover-target" data-filter="reels">Short-Form / Reels</button>
+            <button class="filter-btn hover-target" data-filter="video">Video</button>
+            <button class="filter-btn hover-target" data-filter="poster">Poster</button>
+            <button class="filter-btn hover-target" data-filter="online">Online Media</button>
+            <button class="filter-btn hover-target" data-filter="sign">Sign</button>
+        </div>
+        
+        <div class="masonry">
+            
+            <!-- Reels / Short-Form Item -->
+            <div class="item reels hover-target">
+                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80" alt="Social Media Reel" loading="lazy">
+                <div class="item-info">Vertical Promo Reel Layout</div>
+            </div>
+
+            <!-- Video Item -->
+            <div class="item video hover-target">
+                <!-- Using an image thumbnail for the masonry grid to trigger the iframe popup -->
+                <iframe src="https://www.youtube.com/embed/ScMzIvxBSi4" loading="lazy" allowfullscreen></iframe>
+                <div class="item-info">Fast-Paced Promo Reel</div>
+            </div>
+
+            <!-- Poster Item -->
+            <div class="item poster hover-target">
+                <img src="https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?w=500&q=80" alt="Event Poster" loading="lazy">
+                <div class="item-info">Event Promotional Poster</div>
+            </div>
+
+            <!-- Online Media Item -->
+            <div class="item online hover-target">
+                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80" alt="Online Banner" loading="lazy">
+                <div class="item-info">High-Contrast Social Media Ad</div>
+            </div>
+
+            <!-- Sign Item -->
+            <div class="item sign hover-target">
+                <img src="https://images.unsplash.com/photo-1623018035782-b269248fc596?w=500&q=80" alt="Store Sign" loading="lazy">
+                <div class="item-info">Storefront Signage Design</div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- 3. CONTACT -->
+    <section id="contact">
+        <h2>Contact</h2>
+        <div class="contact-box">
+            <p>Let's collaborate on your next project:</p>
+            <a href="tel:+8562012345678" class="hover-target">📞 +856 20 1234 5678</a>
+            <a href="https://wa.me/8562012345678" class="hover-target" target="_blank">💬 WhatsApp</a>
+            <a href="mailto:contact@creative.la" class="hover-target">✉️ contact@creative.la</a>
+        </div>
+    </section>
+
+    <script>
+        // Custom Mouse Circle Logic (Only runs if a fine pointer is detected to save mobile resources)
+        const cursor = document.getElementById('cursor');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            
+            document.querySelectorAll('.hover-target, .filter-btn, .item').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            });
+        }
+
+        // Portfolio Masonry Filter Logic
+        const buttons = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.item');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.filter-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                
+                items.forEach(item => {
+                    if(filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Click-to-View Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        const lbVideo = document.getElementById('lb-video');
+        const closeBtn = document.querySelector('.close-btn');
+
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                const img = item.querySelector('img');
+                const iframe = item.querySelector('iframe');
+                
+                // Reset active classes
+                lbImg.classList.remove('active');
+                lbVideo.classList.remove('active');
+                
+                if (img) {
+                    lbImg.src = img.src;
+                    lbImg.classList.add('active');
+                } else if (iframe) {
+                    lbVideo.src = iframe.src;
+                    lbVideo.classList.add('active');
+                }
+                
+                lightbox.classList.add('active');
+            });
+        });
+
+        // Close Lightbox
+        closeBtn.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+            lbVideo.src = lbVideo.src; // Reloads iframe to stop video playback
+        });
+        
+        // Close Lightbox if clicking outside the image/video
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.classList.remove('active');
+                lbVideo.src = lbVideo.src; 
+            }
+        });
+    </script>
+</body>
+</html>
