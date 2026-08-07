@@ -1,47 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio Archive</title>
-    <style>
-        /* 1. Global Settings & Black/Yellow Theme */
-        :root { 
-            --bg-color: #0a0a0a; 
-            --text-color: #ffffff; 
-            --yellow: #FFD700; 
-        }
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        }
-        html { 
-            scroll-behavior: smooth; 
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-        }
-        body { overflow-x: hidden; }
-        
-        /* 2. Custom Cursor (Hidden on Mobile) */
-        @media (pointer: fine) {
-            html { cursor: none; }
-        }
-        .cursor {
-            position: fixed; top: 0; left: 0; width: 35px; height: 35px;
-            border: 2px solid var(--yellow); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none;
-            z-index: 9999; transition: transform 0.15s ease-out, background-color 0.2s;
-        }
-        .cursor.hovering { 
-            background-color: rgba(255, 215, 0, 0.4); 
-            transform: translate(-50%, -50%) scale(1.5); 
-        }
-        @media (pointer: coarse) {
-            .cursor { display: none !important; }
-        }
-        
-        /* 3. Navigation Bar */
-        nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
@@ -72,12 +28,12 @@
             display: flex; flex-direction: column; justify-content: center; 
         }
         @media (max-width: 768px) {
-            section { padding-top: 140px; } /* Extra padding for stacked mobile menu */
+            section { padding-top: 140px; }
         }
         h2 { color: var(--yellow); font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
         @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
         
-        /* About Section (Portrait Removed) */
+        /* About Section */
         .about-wrapper {
             display: flex;
             flex-direction: column;
@@ -124,7 +80,6 @@
         /* Masonry Grid */
         .masonry { column-count: 3; column-gap: 20px; }
         @media (max-width: 900px) { .masonry { column-count: 2; } }
-        /* Mobile adjustment: keep 2 columns so items are smaller, reduce gaps */
         @media (max-width: 600px) { 
             .masonry { column-count: 2; column-gap: 10px; } 
         }
@@ -132,7 +87,7 @@
         .item { 
             break-inside: avoid; margin-bottom: 20px; background: #1a1a1a; 
             border-radius: 8px; overflow: hidden; border: 1px solid #333;
-            cursor: pointer; /* Indicates it can be clicked */
+            cursor: pointer;
             transition: transform 0.2s;
         }
         @media (max-width: 600px) { .item { margin-bottom: 10px; } }
@@ -175,6 +130,15 @@
             display: flex; justify-content: center; align-items: center;
         }
         @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
+        
+        /* Loading Indicator for Supabase */
+        .loading-text {
+            color: var(--yellow);
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 40px 0;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
@@ -272,39 +236,9 @@
             <button class="filter-btn hover-target" data-filter="sign">Sign</button>
         </div>
         
-        <div class="masonry">
-            
-            <!-- Reels / Short-Form Item -->
-            <div class="item reels hover-target">
-                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80" alt="Social Media Reel" loading="lazy">
-                <div class="item-info">Vertical Promo Reel Layout</div>
-            </div>
-
-            <!-- Video Item -->
-            <div class="item video hover-target">
-                <!-- Using an image thumbnail for the masonry grid to trigger the iframe popup -->
-                <iframe src="https://www.youtube.com/embed/ScMzIvxBSi4" loading="lazy" allowfullscreen></iframe>
-                <div class="item-info">Fast-Paced Promo Reel</div>
-            </div>
-
-            <!-- Poster Item -->
-            <div class="item poster hover-target">
-                <img src="https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?w=500&q=80" alt="Event Poster" loading="lazy">
-                <div class="item-info">Event Promotional Poster</div>
-            </div>
-
-            <!-- Online Media Item -->
-            <div class="item online hover-target">
-                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80" alt="Online Banner" loading="lazy">
-                <div class="item-info">High-Contrast Social Media Ad</div>
-            </div>
-
-            <!-- Sign Item -->
-            <div class="item sign hover-target">
-                <img src="https://images.unsplash.com/photo-1623018035782-b269248fc596?w=500&q=80" alt="Store Sign" loading="lazy">
-                <div class="item-info">Storefront Signage Design</div>
-            </div>
-            
+        <!-- Masonry Grid Container (Populated dynamically by Supabase) -->
+        <div class="masonry" id="masonry-grid">
+            <div class="loading-text">Loading Archive from Supabase...</div>
         </div>
     </section>
 
@@ -319,8 +253,76 @@
         </div>
     </section>
 
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // Custom Mouse Circle Logic (Only runs if a fine pointer is detected to save mobile resources)
+        // ==========================================
+        // 1. SUPABASE CONFIGURATION
+        // ==========================================
+        const SUPABASE_URL = 'https://kuoxoduwamxlgigrsvfq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1b3hvZHV3YW14bGdpZ3JzdmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzAxNDUsImV4cCI6MjEwMTY4NjE0NX0.pIttUdhodN_mrtm12RaHcgogeHy02oEkbGKx_dbo5no';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ==========================================
+        // 2. DYNAMICALLY LOAD WORK FROM SUPABASE
+        // ==========================================
+        async function loadArchiveFromSupabase() {
+            const masonryContainer = document.getElementById('masonry-grid');
+            
+            try {
+                // Fetch all rows from your 'projects' table
+                const { data: projects, error } = await supabaseClient
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Clear the 'Loading...' text
+                masonryContainer.innerHTML = '';
+
+                if (!projects || projects.length === 0) {
+                    masonryContainer.innerHTML = '<div class="loading-text">No items found in database yet.</div>';
+                    return;
+                }
+
+                // Loop through Supabase items and generate HTML cards
+                projects.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = `item ${item.category || 'all'} hover-target`;
+
+                    if (item.media_type === 'video') {
+                        card.innerHTML = `
+                            <iframe src="${item.media_url}" loading="lazy" allowfullscreen></iframe>
+                            <div class="item-info">${item.title}</div>
+                        `;
+                    } else {
+                        // Default to image
+                        card.innerHTML = `
+                            <img src="${item.media_url}" alt="${item.title}" loading="lazy">
+                            <div class="item-info">${item.title}</div>
+                        `;
+                    }
+
+                    masonryContainer.appendChild(card);
+                });
+
+                // Re-bind Lightbox Click Events for dynamically created cards
+                initLightboxEvents();
+
+            } catch (err) {
+                console.error('Error fetching Supabase data:', err.message);
+                masonryContainer.innerHTML = '<div class="loading-text" style="color:red;">Failed to load archive. Check your Supabase Keys!</div>';
+            }
+        }
+
+        // ==========================================
+        // 3. UI, FILTERS & LIGHTBOX LOGIC
+        // ==========================================
+        
+        // Custom Mouse Circle Logic
         const cursor = document.getElementById('cursor');
         if (window.matchMedia("(pointer: fine)").matches) {
             document.addEventListener('mousemove', (e) => {
@@ -328,15 +330,14 @@
                 cursor.style.top = e.clientY + 'px';
             });
             
-            document.querySelectorAll('.hover-target, .filter-btn, .item').forEach(el => {
+            document.querySelectorAll('.hover-target, .filter-btn').forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
             });
         }
 
-        // Portfolio Masonry Filter Logic
+        // Filter Logic
         const buttons = document.querySelectorAll('.filter-btn');
-        const items = document.querySelectorAll('.item');
 
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -344,6 +345,7 @@
                 btn.classList.add('active');
                 
                 const filter = btn.getAttribute('data-filter');
+                const items = document.querySelectorAll('.item');
                 
                 items.forEach(item => {
                     if(filter === 'all' || item.classList.contains(filter)) {
@@ -361,40 +363,44 @@
         const lbVideo = document.getElementById('lb-video');
         const closeBtn = document.querySelector('.close-btn');
 
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-                const img = item.querySelector('img');
-                const iframe = item.querySelector('iframe');
-                
-                // Reset active classes
-                lbImg.classList.remove('active');
-                lbVideo.classList.remove('active');
-                
-                if (img) {
-                    lbImg.src = img.src;
-                    lbImg.classList.add('active');
-                } else if (iframe) {
-                    lbVideo.src = iframe.src;
-                    lbVideo.classList.add('active');
-                }
-                
-                lightbox.classList.add('active');
+        function initLightboxEvents() {
+            const items = document.querySelectorAll('.item');
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const img = item.querySelector('img');
+                    const iframe = item.querySelector('iframe');
+                    
+                    lbImg.classList.remove('active');
+                    lbVideo.classList.remove('active');
+                    
+                    if (img) {
+                        lbImg.src = img.src;
+                        lbImg.classList.add('active');
+                    } else if (iframe) {
+                        lbVideo.src = iframe.src;
+                        lbVideo.classList.add('active');
+                    }
+                    
+                    lightbox.classList.add('active');
+                });
             });
-        });
+        }
 
         // Close Lightbox
         closeBtn.addEventListener('click', () => {
             lightbox.classList.remove('active');
-            lbVideo.src = lbVideo.src; // Reloads iframe to stop video playback
+            lbVideo.src = lbVideo.src; 
         });
         
-        // Close Lightbox if clicking outside the image/video
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
                 lightbox.classList.remove('active');
                 lbVideo.src = lbVideo.src; 
             }
         });
+
+        // Initialize Supabase Fetch on Load
+        loadArchiveFromSupabase();
     </script>
 </body>
 </html>
