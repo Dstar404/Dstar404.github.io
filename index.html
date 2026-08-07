@@ -86,7 +86,7 @@
         @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
 
         /* ========================================= */
-        /* HERO SECTION CSS (UPDATED POSITIONS) */
+        /* HERO SECTION CSS (MOBILE FIXED) */
         /* ========================================= */
         .hero-container {
             position: relative;
@@ -132,7 +132,6 @@
         }
         .hero-btn:hover { background-color: #fff; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.5); }
         
-        /* Moved back to viewport positioning so it goes all the way to the right side of the screen */
         .hero-image-box {
             position: absolute; bottom: 0; right: 5%; width: 45%; height: 85%;
             z-index: 4; display: flex; justify-content: center; align-items: flex-end;
@@ -156,14 +155,62 @@
             .hero-accents { left: 58%; }
             .hero-image-box { width: 50%; right: 0; }
         }
+        
+        /* ------------------------------------- */
+        /* STRICT MOBILE FIX FOR HERO SECTION    */
+        /* ------------------------------------- */
         @media (max-width: 768px) {
-            .hero-container { background: linear-gradient(180deg, var(--bg-color) 50%, var(--yellow) 50%); min-height: 100vh; height: auto; }
-            .hero-content { flex-direction: column; text-align: center; justify-content: center; padding-top: 140px; min-height: 100vh; height: auto; margin: 0 auto; }
-            .hero-text-box { padding-bottom: 0; }
-            .hero-title { font-size: 4rem; text-align: center; display: block; }
-            .hero-subtitle { font-size: 2.8rem; text-align: center; }
-            .hero-image-box { width: 100%; height: 45vh; right: auto; position: relative; margin: 0 auto; justify-content: center; }
-            .hero-img { object-position: bottom center; }
+            .hero-container { 
+                /* Flat horizontal split for mobile */
+                background: linear-gradient(180deg, var(--bg-color) 50%, var(--yellow) 50%); 
+            }
+            .hero-content { 
+                /* Force text into the top half */
+                flex-direction: column; 
+                justify-content: center; 
+                align-items: center;
+                text-align: center;
+                height: 50vh; 
+                margin: 0;
+                width: 100%;
+                padding-top: 80px; 
+            }
+            .hero-text-box { 
+                padding-bottom: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .hi-text { font-size: 1.2rem; margin-bottom: 5px; }
+            .hero-title { 
+                font-size: 3.5rem; 
+                text-align: center; 
+                display: block; 
+                margin-bottom: 25px;
+            }
+            .hero-subtitle { 
+                font-size: 2.2rem; 
+                text-align: center; 
+                display: block; 
+                margin-top: 5px;
+            }
+            .hero-btn {
+                font-size: 1rem;
+                padding: 12px 30px;
+            }
+            
+            .hero-image-box { 
+                /* Force image into the bottom half */
+                width: 100%; 
+                height: 50vh; 
+                right: 0; 
+                bottom: 0;
+                justify-content: center; 
+            }
+            .hero-img { 
+                object-position: bottom center; 
+                width: 90%;
+            }
             .hero-accents { display: none; }
         }
         /* ========================================= */
