@@ -1,3 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio Archive</title>
+    <style>
+        /* 1. Global Settings & Black/Yellow Theme */
+        :root { 
+            --bg-color: #0a0a0a; 
+            --text-color: #ffffff; 
+            --yellow: #FFD700; 
+        }
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        html { 
+            scroll-behavior: smooth; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+        }
+        body { overflow-x: hidden; }
+        
+        /* 2. Custom Cursor (Hidden on Mobile) */
+        @media (pointer: fine) {
+            html { cursor: none; }
+        }
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 35px; height: 35px;
+            border: 2px solid var(--yellow); border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
+            z-index: 9999; transition: transform 0.15s ease-out, background-color 0.2s;
+        }
+        .cursor.hovering { 
+            background-color: rgba(255, 215, 0, 0.4); 
+            transform: translate(-50%, -50%) scale(1.5); 
+        }
+        @media (pointer: coarse) {
+            .cursor { display: none !important; }
+        }
+        
+        /* 3. Navigation Bar */
+        nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
