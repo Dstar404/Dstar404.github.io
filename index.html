@@ -46,12 +46,6 @@
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
         }
-        
-        /* Logo and Nav-Left Wrapper */
-        .nav-left { display: flex; align-items: center; gap: 30px; }
-        .logo { font-size: 1.8rem; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: 1px; }
-        .logo span { color: var(--yellow); }
-        
         .cv-btn { 
             background: var(--yellow); color: #000; padding: 10px 20px; 
             text-decoration: none; font-weight: bold; border-radius: 4px; transition: 0.3s;
@@ -66,9 +60,7 @@
         
         /* Mobile Menu Fix */
         @media (max-width: 768px) {
-            nav { padding: 15px 5%; flex-direction: column; gap: 15px; }
-            .nav-left { flex-direction: column; gap: 10px; }
-            .logo { font-size: 1.5rem; }
+            nav { padding: 15px 5%; flex-direction: column; gap: 12px; }
             .cv-btn { padding: 6px 15px; font-size: 0.9rem; }
             .menu { gap: 15px; flex-wrap: wrap; justify-content: center; }
             .menu a { font-size: 0.85rem; }
@@ -84,130 +76,6 @@
         }
         h2 { color: var(--yellow); font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
         @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
-
-        /* ========================================= */
-        /* HERO SECTION CSS                          */
-        /* ========================================= */
-        .hero-container {
-            position: relative;
-            min-height: 100vh;
-            width: 100%;
-            overflow: hidden;
-            background: linear-gradient(105deg, var(--bg-color) 53%, var(--yellow) 53%);
-        }
-        .hero-content {
-            position: relative; z-index: 5;
-            width: 90%; max-width: 1000px; 
-            margin: 0 5%; 
-            height: 100vh;
-            display: flex; align-items: center; justify-content: flex-start;
-        }
-        
-        .hero-text-box { max-width: 650px; padding-bottom: 30px; }
-        
-        .hi-text { color: var(--yellow); font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
-        
-        .hero-title { 
-            font-size: 7.5rem; 
-            line-height: 1.05; 
-            color: #fff; 
-            margin-bottom: 45px; 
-            font-weight: 900; 
-            letter-spacing: 1px; 
-            display: inline-block; 
-        }
-        
-        .hero-subtitle { 
-            font-size: 4.8rem; 
-            font-weight: 700; 
-            display: block; 
-            text-align: right; 
-        }
-        
-        .hero-btn {
-            display: inline-block; background-color: var(--yellow); color: #000;
-            padding: 16px 45px; border-radius: 50px; text-decoration: none;
-            font-weight: 800; font-size: 1.25rem; transition: 0.3s; border: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-        .hero-btn:hover { background-color: #fff; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.5); }
-        
-        .hero-image-box {
-            position: absolute; bottom: 0; right: 5%; width: 45%; height: 85%;
-            z-index: 4; display: flex; justify-content: center; align-items: flex-end;
-        }
-        .hero-img { height: 100%; width: auto; object-fit: contain; object-position: bottom; mix-blend-mode: multiply; filter: contrast(1.1); }
-        
-        .hero-accents {
-            position: absolute; bottom: 0; left: 53%; z-index: 3;
-            display: flex; gap: 15px; align-items: flex-end;
-        }
-        .hero-accents .bar {
-            background-color: var(--bg-color); width: 22px; transform-origin: bottom; transform: skewX(15deg);
-        }
-        .bar-short { height: 90px; }
-        .bar-tall { height: 160px; }
-
-        @media (max-width: 1024px) {
-            .hero-title { font-size: 5.5rem; }
-            .hero-subtitle { font-size: 3.5rem; }
-            .hero-container { background: linear-gradient(105deg, var(--bg-color) 58%, var(--yellow) 58%); }
-            .hero-accents { left: 58%; }
-            .hero-image-box { width: 50%; right: 0; }
-        }
-        
-        @media (max-width: 768px) {
-            .hero-container { 
-                background: linear-gradient(180deg, var(--bg-color) 50%, var(--yellow) 50%); 
-            }
-            .hero-content { 
-                flex-direction: column; 
-                justify-content: center; 
-                align-items: center;
-                text-align: center;
-                height: 50vh; 
-                margin: 0;
-                width: 100%;
-                padding-top: 80px; 
-            }
-            .hero-text-box { 
-                padding-bottom: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .hi-text { font-size: 1.2rem; margin-bottom: 5px; }
-            .hero-title { 
-                font-size: 3.5rem; 
-                text-align: center; 
-                display: block; 
-                margin-bottom: 25px;
-            }
-            .hero-subtitle { 
-                font-size: 2.2rem; 
-                text-align: center; 
-                display: block; 
-                margin-top: 5px;
-            }
-            .hero-btn {
-                font-size: 1rem;
-                padding: 12px 30px;
-            }
-            
-            .hero-image-box { 
-                width: 100%; 
-                height: 50vh; 
-                right: 0; 
-                bottom: 0;
-                justify-content: center; 
-            }
-            .hero-img { 
-                object-position: bottom center; 
-                width: 90%;
-            }
-            .hero-accents { display: none; }
-        }
-        /* ========================================= */
         
         /* About Section */
         .about-wrapper {
@@ -355,38 +223,13 @@
     
     <!-- Navigation -->
     <nav>
-        <div class="nav-left">
-            <a href="#" class="logo hover-target">Dao<span>.</span></a>
-            <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
-        </div>
+        <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
         <ul class="menu">
             <li><a href="#about" class="hover-target">About</a></li>
             <li><a href="#work" class="hover-target">Archive</a></li>
             <li><a href="#contact" class="hover-target">Contact</a></li>
         </ul>
     </nav>
-
-    <!-- 0. HERO SECTION -->
-    <section id="hero" class="hero-container">
-        
-        <div class="hero-content">
-            <div class="hero-text-box">
-                <p class="hi-text">Hi i'm</p>
-                <h1 class="hero-title">Graphic<br><span class="hero-subtitle">Designer</span></h1>
-                <a href="#about" class="hero-btn hover-target">View More</a>
-            </div>
-        </div>
-
-        <div class="hero-accents">
-            <div class="bar bar-short"></div>
-            <div class="bar bar-tall"></div>
-        </div>
-        
-        <div class="hero-image-box">
-            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80" alt="Dao" class="hero-img">
-        </div>
-
-    </section>
 
     <!-- 1. ABOUT -->
     <section id="about">
@@ -401,7 +244,7 @@
                     <p>When I am away from the timeline, you can usually find me ranking up in Mobile Legends or hanging out with my two large, brown dogs.</p>
                 </div>
                 
-                <!-- UPDATED: Toolkit as stacked cards with logo on top and text below -->
+                <!-- Toolkit (UPDATED to vertical cards) -->
                 <h3 class="skills-title" style="margin-top: 40px;">My Toolkit</h3>
                 <div class="skills">
                     <div class="skill-card hover-target">
