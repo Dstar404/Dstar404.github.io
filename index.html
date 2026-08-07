@@ -86,131 +86,64 @@
         @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
 
         /* ========================================= */
-        /* HERO SECTION CSS (MOBILE FIXED) */
+        /* HERO SECTION CSS (Added from image reference) */
         /* ========================================= */
         .hero-container {
             position: relative;
             min-height: 100vh;
             width: 100%;
+            display: flex;
+            align-items: center;
             overflow: hidden;
-            background: linear-gradient(105deg, var(--bg-color) 53%, var(--yellow) 53%);
+            padding-top: 0; 
+            background: linear-gradient(105deg, #0d1b2a 55%, var(--yellow) 55%);
         }
         .hero-content {
             position: relative; z-index: 5;
-            width: 90%; max-width: 1000px; 
-            margin: 0 5%; 
-            height: 100vh;
-            display: flex; align-items: center; justify-content: flex-start;
+            width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        
-        .hero-text-box { max-width: 650px; padding-bottom: 30px; }
-        
-        .hi-text { color: var(--yellow); font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
-        
-        .hero-title { 
-            font-size: 7.5rem; 
-            line-height: 1.05; 
-            color: #fff; 
-            margin-bottom: 45px; 
-            font-weight: 900; 
-            letter-spacing: 1px; 
-            display: inline-block; 
-        }
-        
-        .hero-subtitle { 
-            font-size: 4.8rem; 
-            font-weight: 700; 
-            display: block; 
-            text-align: right; 
-        }
+        .hero-text-box { max-width: 500px; padding-bottom: 30px; }
+        .hi-text { color: var(--yellow); font-size: 1.4rem; font-weight: 600; margin-bottom: 5px; letter-spacing: 1px; }
+        .hero-title { font-size: 5.5rem; line-height: 1.1; color: #fff; margin-bottom: 30px; font-weight: 800; letter-spacing: 1px; }
+        .hero-subtitle { font-size: 2.5rem; font-weight: 600; }
         
         .hero-btn {
             display: inline-block; background-color: var(--yellow); color: #000;
-            padding: 16px 45px; border-radius: 50px; text-decoration: none;
-            font-weight: 800; font-size: 1.25rem; transition: 0.3s; border: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            padding: 12px 35px; border-radius: 30px; text-decoration: none;
+            font-weight: 700; font-size: 1.1rem; transition: 0.3s; border: none;
         }
-        .hero-btn:hover { background-color: #fff; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.5); }
+        .hero-btn:hover { background-color: #fff; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         
         .hero-image-box {
-            position: absolute; bottom: 0; right: 5%; width: 45%; height: 85%;
+            position: absolute; bottom: 0; right: 12%; width: 35%; height: 85%;
             z-index: 4; display: flex; justify-content: center; align-items: flex-end;
         }
+        /* Mix-blend-mode multiply allows a photo with a white background to perfectly blend into the yellow! */
         .hero-img { height: 100%; width: auto; object-fit: contain; object-position: bottom; mix-blend-mode: multiply; filter: contrast(1.1); }
         
         .hero-accents {
-            position: absolute; bottom: 0; left: 53%; z-index: 3;
+            position: absolute; bottom: 0; left: 55%; z-index: 3;
             display: flex; gap: 15px; align-items: flex-end;
         }
         .hero-accents .bar {
-            background-color: var(--bg-color); width: 22px; transform-origin: bottom; transform: skewX(15deg);
+            background-color: #0d1b2a; width: 22px; transform-origin: bottom; transform: skewX(15deg);
         }
         .bar-short { height: 90px; }
         .bar-tall { height: 160px; }
 
         @media (max-width: 1024px) {
-            .hero-title { font-size: 5.5rem; }
-            .hero-subtitle { font-size: 3.5rem; }
-            .hero-container { background: linear-gradient(105deg, var(--bg-color) 58%, var(--yellow) 58%); }
-            .hero-accents { left: 58%; }
-            .hero-image-box { width: 50%; right: 0; }
+            .hero-title { font-size: 4.5rem; }
+            .hero-subtitle { font-size: 2.2rem; }
+            .hero-image-box { right: 5%; width: 45%; }
+            .hero-container { background: linear-gradient(105deg, #0d1b2a 60%, var(--yellow) 60%); }
+            .hero-accents { left: 60%; }
         }
-        
-        /* ------------------------------------- */
-        /* STRICT MOBILE FIX FOR HERO SECTION    */
-        /* ------------------------------------- */
         @media (max-width: 768px) {
-            .hero-container { 
-                /* Flat horizontal split for mobile */
-                background: linear-gradient(180deg, var(--bg-color) 50%, var(--yellow) 50%); 
-            }
-            .hero-content { 
-                /* Force text into the top half */
-                flex-direction: column; 
-                justify-content: center; 
-                align-items: center;
-                text-align: center;
-                height: 50vh; 
-                margin: 0;
-                width: 100%;
-                padding-top: 80px; 
-            }
-            .hero-text-box { 
-                padding-bottom: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .hi-text { font-size: 1.2rem; margin-bottom: 5px; }
-            .hero-title { 
-                font-size: 3.5rem; 
-                text-align: center; 
-                display: block; 
-                margin-bottom: 25px;
-            }
-            .hero-subtitle { 
-                font-size: 2.2rem; 
-                text-align: center; 
-                display: block; 
-                margin-top: 5px;
-            }
-            .hero-btn {
-                font-size: 1rem;
-                padding: 12px 30px;
-            }
-            
-            .hero-image-box { 
-                /* Force image into the bottom half */
-                width: 100%; 
-                height: 50vh; 
-                right: 0; 
-                bottom: 0;
-                justify-content: center; 
-            }
-            .hero-img { 
-                object-position: bottom center; 
-                width: 90%;
-            }
+            .hero-container { background: linear-gradient(180deg, #0d1b2a 50%, var(--yellow) 50%); flex-direction: column; text-align: center; }
+            .hero-content { margin-top: 140px; justify-content: center; padding-bottom: 20px; }
+            .hero-text-box { padding-bottom: 0; }
+            .hero-image-box { width: 90%; height: 45%; right: 0; position: relative; margin: 0 auto; z-index: 4; }
             .hero-accents { display: none; }
         }
         /* ========================================= */
@@ -349,7 +282,7 @@
         </ul>
     </nav>
 
-    <!-- 0. HERO SECTION -->
+    <!-- 0. HERO SECTION (Added from visual reference) -->
     <section id="hero" class="hero-container">
         
         <div class="hero-content">
@@ -365,13 +298,14 @@
             <div class="bar bar-short"></div>
             <div class="bar bar-tall"></div>
         </div>
-        
-        <!-- Image box moved outside hero-content to align to the far right of the screen -->
+
+        <!-- Hero Subject Image -->
         <div class="hero-image-box">
-            <!-- Replace src with your image -->
+            <!-- Note: I used a placeholder model image and CSS 'mix-blend-mode: multiply' to make it look transparent on the yellow background.
+                 To use your own image: Upload a transparent PNG to Supabase and paste the link here. -->
             <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80" alt="Dao" class="hero-img">
         </div>
-
+        
     </section>
 
     <!-- 1. ABOUT -->
