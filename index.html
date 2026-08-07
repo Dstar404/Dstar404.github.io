@@ -43,14 +43,9 @@
         /* 3. Navigation Bar */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: flex-end; align-items: center;
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
         }
-        .cv-btn { 
-            background: var(--yellow); color: #000; padding: 10px 20px; 
-            text-decoration: none; font-weight: bold; border-radius: 4px; transition: 0.3s;
-        }
-        .cv-btn:hover { background: #fff; }
         .menu { list-style: none; display: flex; gap: 30px; }
         .menu a { 
             color: #fff; text-decoration: none; font-weight: 500; 
@@ -60,34 +55,135 @@
         
         /* Mobile Menu Fix */
         @media (max-width: 768px) {
-            nav { padding: 15px 5%; flex-direction: column; gap: 12px; }
-            .cv-btn { padding: 6px 15px; font-size: 0.9rem; }
+            nav { padding: 15px 5%; justify-content: center; }
             .menu { gap: 15px; flex-wrap: wrap; justify-content: center; }
             .menu a { font-size: 0.85rem; }
         }
         
-        /* 4. Page Sections */
-        section { 
-            min-height: 100vh; padding: 120px 5% 50px; 
-            display: flex; flex-direction: column; justify-content: center; 
+        /* HERO / COVER SECTION */
+        #hero {
+            min-height: 100vh;
+            padding: 140px 5% 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
         }
-        @media (max-width: 768px) {
-            section { padding-top: 140px; }
+        .hero-left {
+            flex: 1;
+            max-width: 700px; /* ขยายขนาดกล่องซ้ายเล็กน้อยเพื่อรองรับข้อความที่ยาวขึ้น */
+        }
+        .hero-left .greeting-row {
+            font-size: 1.2rem; /* ปรับให้ขนาดเล็ก */
+            color: #aaa;
+            margin-bottom: 5px;
+            font-weight: 400;
+        }
+        .hero-left .hero-title-big {
+            font-size: 5rem; /* ปรับให้ใหญ่มาก */
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+        .hero-left .hero-title-big span {
+            color: var(--yellow); /* ให้คำว่า DESIGNER เป็นสีเหลืองเพื่อความโดดเด่น */
+        }
+        .hero-about-text {
+            font-size: 1.1rem; 
+            line-height: 1.7; 
+            color: #ddd;
+            margin-bottom: 40px;
+        }
+        .hero-btns {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            background: var(--yellow);
+            color: #000;
+            padding: 12px 28px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: 0.3s;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #fff;
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid var(--yellow);
+            padding: 12px 28px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: 0.3s;
+            display: inline-block;
+        }
+        .btn-secondary:hover {
+            background: var(--yellow);
+            color: #000;
+        }
+        .hero-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .portrait-img {
+            width: 100%;
+            max-width: 420px;
+            height: auto;
+            border-radius: 16px;
+            border: 2px solid var(--yellow);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+            object-fit: cover;
+        }
+
+        /* การปรับแต่งขนาดสำหรับจอที่เล็กลง */
+        @media (max-width: 1024px) {
+            .hero-left .hero-title-big { font-size: 4rem; }
+        }
+        @media (max-width: 900px) {
+            #hero {
+                flex-direction: column-reverse;
+                text-align: center;
+                justify-content: center;
+                padding-top: 120px;
+            }
+            .hero-left { max-width: 100%; }
+            .hero-left .hero-title-big { font-size: 3.2rem; }
+            .hero-btns { justify-content: center; }
+            .portrait-img { max-width: 280px; }
+        }
+        @media (max-width: 600px) {
+            .hero-left .hero-title-big { font-size: 2.5rem; }
+            .hero-about-text { font-size: 1rem; }
+        }
+
+        /* 4. Page Sections */
+        section.content-section { 
+            padding: 80px 5% 50px; 
+            display: flex; flex-direction: column; justify-content: center; 
         }
         h2 { color: var(--yellow); font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
         @media (max-width: 768px) { h2 { font-size: 2.2rem; } }
         
-        /* About Section */
+        /* About (Toolkit & Exp) Section */
         .about-wrapper {
             display: flex;
             flex-direction: column;
             gap: 30px;
             max-width: 1000px;
         }
-        .about-text { font-size: 1.2rem; line-height: 1.8; color: #ddd; }
         
-        /* UPDATED: Vertical Card Grid for Toolkit */
-        .skills-title { color: var(--yellow); margin: 30px 0 20px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+        /* Toolkit */
+        .skills-title { color: var(--yellow); margin: 0 0 20px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
         .skills { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
@@ -223,29 +319,46 @@
     
     <!-- Navigation -->
     <nav>
-        <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
         <ul class="menu">
-            <li><a href="#about" class="hover-target">About</a></li>
+            <li><a href="#hero" class="hover-target">Home</a></li>
+            <li><a href="#about" class="hover-target">Toolkit & Exp</a></li>
             <li><a href="#work" class="hover-target">Archive</a></li>
             <li><a href="#contact" class="hover-target">Contact</a></li>
         </ul>
     </nav>
 
-    <!-- 1. ABOUT -->
-    <section id="about">
-        <h2>About Me</h2>
-        <div class="about-wrapper">
+    <!-- HERO / COVER SECTION -->
+    <section id="hero">
+        <div class="hero-left">
+            <p class="greeting-row">Hello. I'm Dao</p>
+            <h1 class="hero-title-big">GRAPHIC <span>DESIGNER</span></h1>
+            
+            <!-- ย้ายเนื้อหา About Me มาไว้ตรงนี้ -->
+            <div class="hero-about-text">
+                <p>I am a creative professional specializing in fast-paced commercial marketing visuals and dynamic media. I excel at producing striking promotional content, from 3D typography layouts to high-contrast badge graphics featuring price markdowns designed to capture attention and drive engagement.</p>
+                <br>
+                <p>When I am away from the timeline, you can usually find me ranking up in Mobile Legends or hanging out with my two large, brown dogs.</p>
+            </div>
 
-            <!-- Content -->
+            <div class="hero-btns">
+                <a href="cv.pdf" class="btn-primary hover-target" target="_blank">View CV</a>
+                <a href="#contact" class="btn-secondary hover-target">Contact Me</a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <!-- เปลี่ยน src เป็นลิงก์รูปภาพ Portrait ของคุณ -->
+            <img src="https://via.placeholder.com/400x500" alt="Dao Portrait" class="portrait-img hover-target">
+        </div>
+    </section>
+
+    <!-- 1. TOOLKIT & EXPERIENCE -->
+    <section id="about" class="content-section">
+        <!-- เอา <h2>About Me</h2> ออกแล้วเหลือแค่ส่วน Toolkit และ Experience -->
+        <div class="about-wrapper">
             <div class="about-content">
-                <div class="about-text">
-                    <p>I am a creative professional specializing in fast-paced commercial marketing visuals and dynamic media. I excel at producing striking promotional content, from 3D typography layouts to high-contrast badge graphics featuring price markdowns designed to capture attention and drive engagement.</p>
-                    <br>
-                    <p>When I am away from the timeline, you can usually find me ranking up in Mobile Legends or hanging out with my two large, brown dogs.</p>
-                </div>
                 
-                <!-- Toolkit (UPDATED to vertical cards) -->
-                <h3 class="skills-title" style="margin-top: 40px;">My Toolkit</h3>
+                <!-- Toolkit -->
+                <h3 class="skills-title">My Toolkit</h3>
                 <div class="skills">
                     <div class="skill-card hover-target">
                         <img src="https://cdn.simpleicons.org/adobepremierepro/FFD700" alt="Pr">
@@ -302,12 +415,11 @@
                     </div>
                 </div>
             </div>
-            
         </div>
     </section>
 
     <!-- 2. WORK (ARCHIVE) -->
-    <section id="work">
+    <section id="work" class="content-section">
         <h2>My Archive</h2>
         <div class="filters">
             <button class="filter-btn active hover-target" data-filter="all">All</button>
@@ -318,14 +430,14 @@
             <button class="filter-btn hover-target" data-filter="sign">Sign</button>
         </div>
         
-        <!-- Masonry Grid Container (Populated dynamically by Supabase) -->
+        <!-- Masonry Grid Container -->
         <div class="masonry" id="masonry-grid">
             <div class="loading-text">Loading Archive from Supabase...</div>
         </div>
     </section>
 
     <!-- 3. CONTACT -->
-    <section id="contact">
+    <section id="contact" class="content-section">
         <h2>Contact</h2>
         <div class="contact-box">
             <p>Let's collaborate on your next project:</p>
@@ -354,7 +466,6 @@
             const masonryContainer = document.getElementById('masonry-grid');
             
             try {
-                // Fetch all rows from your 'projects' table
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
                     .select('*');
@@ -364,7 +475,6 @@
                     throw error;
                 }
 
-                // Clear the 'Loading...' text
                 masonryContainer.innerHTML = '';
 
                 if (!projects || projects.length === 0) {
@@ -372,7 +482,6 @@
                     return;
                 }
 
-                // Loop through Supabase items and generate HTML cards
                 projects.forEach(item => {
                     const card = document.createElement('div');
                     card.className = `item ${item.category || 'all'} hover-target`;
@@ -383,7 +492,6 @@
                             <div class="item-info">${item.title}</div>
                         `;
                     } else {
-                        // Default to image
                         card.innerHTML = `
                             <img src="${item.media_url}" alt="${item.title}" loading="lazy">
                             <div class="item-info">${item.title}</div>
@@ -393,7 +501,6 @@
                     masonryContainer.appendChild(card);
                 });
 
-                // Re-bind Lightbox Click Events for dynamically created cards
                 initLightboxEvents();
 
             } catch (err) {
@@ -414,9 +521,12 @@
                 cursor.style.top = e.clientY + 'px';
             });
             
-            document.querySelectorAll('.hover-target, .filter-btn').forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.classList.contains('hover-target') || e.target.classList.contains('filter-btn') || e.target.closest('.hover-target')) {
+                    cursor.classList.add('hovering');
+                } else {
+                    cursor.classList.remove('hovering');
+                }
             });
         }
 
