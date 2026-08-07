@@ -305,7 +305,8 @@
         // 1. SUPABASE CONFIGURATION
         // ==========================================
         const SUPABASE_URL = 'https://kuoxoduwamxlgigrsvfq.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1b3hvZHV3YW14bGdpZ3JzdmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzAxNDUsImV4cCI6MjEwMTY0NjE0NX0.pIttUdhodN_mrtm12RaHcgogeHy02oEkbGKx_dbo5no'
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1b3hvZHV3YW14bGdpZ3JzdmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzAxNDUsImV4cCI6MjEwMTY0NjE0NX0.pIttUdhodN_mrtm12RaHcgogeHy02oEkbGKx_dbo5no'; // <--- FIXED: Added semicolon here
+        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ==========================================
@@ -315,19 +316,21 @@
             const masonryContainer = document.getElementById('masonry-grid');
             
             try {
-                // Fetch all rows from your 'projects' table
+                // Fetch all rows from your 'projects' table (Removed .order() to bypass schema errors)
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                    .select('*');
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Supabase API Error:', error);
+                    throw error;
+                }
 
                 // Clear the 'Loading...' text
                 masonryContainer.innerHTML = '';
 
                 if (!projects || projects.length === 0) {
-                    masonryContainer.innerHTML = '<div class="loading-text">No items found in database yet.</div>';
+                    masonryContainer.innerHTML = '<div class="loading-text">No items found in database yet. Add a row in Supabase!</div>';
                     return;
                 }
 
@@ -356,8 +359,8 @@
                 initLightboxEvents();
 
             } catch (err) {
-                console.error('Error fetching Supabase data:', err.message);
-                masonryContainer.innerHTML = '<div class="loading-text" style="color:red;">Failed to load archive. Check your Supabase Keys!</div>';
+                console.error('Error fetching Supabase data:', err);
+                masonryContainer.innerHTML = `<div class="loading-text" style="color:red;">Failed to load archive: ${err.message || 'Check Browser Console'}</div>`;
             }
         }
 
