@@ -46,6 +46,12 @@
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
         }
+        
+        /* ADDED: Logo and Nav-Left Wrapper */
+        .nav-left { display: flex; align-items: center; gap: 30px; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: 1px; }
+        .logo span { color: var(--yellow); }
+        
         .cv-btn { 
             background: var(--yellow); color: #000; padding: 10px 20px; 
             text-decoration: none; font-weight: bold; border-radius: 4px; transition: 0.3s;
@@ -60,7 +66,9 @@
         
         /* Mobile Menu Fix */
         @media (max-width: 768px) {
-            nav { padding: 15px 5%; flex-direction: column; gap: 12px; }
+            nav { padding: 15px 5%; flex-direction: column; gap: 15px; }
+            .nav-left { flex-direction: column; gap: 10px; }
+            .logo { font-size: 1.5rem; }
             .cv-btn { padding: 6px 15px; font-size: 0.9rem; }
             .menu { gap: 15px; flex-wrap: wrap; justify-content: center; }
             .menu a { font-size: 0.85rem; }
@@ -199,7 +207,11 @@
     
     <!-- Navigation -->
     <nav>
-        <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
+        <!-- UPDATED: Grouped Logo and CV Button together -->
+        <div class="nav-left">
+            <a href="#" class="logo hover-target">Dao<span>.</span></a>
+            <a href="cv.pdf" class="cv-btn hover-target" target="_blank">View CV</a>
+        </div>
         <ul class="menu">
             <li><a href="#about" class="hover-target">About</a></li>
             <li><a href="#work" class="hover-target">Archive</a></li>
@@ -305,7 +317,7 @@
         // 1. SUPABASE CONFIGURATION
         // ==========================================
         const SUPABASE_URL = 'https://kuoxoduwamxlgigrsvfq.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1b3hvZHV3YW14bGdpZ3JzdmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzAxNDUsImV4cCI6MjEwMTY0NjE0NX0.pIttUdhodN_mrtm12RaHcgogeHy02oEkbGKx_dbo5no'; // <--- FIXED: Added semicolon here
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1b3hvZHV3YW14bGdpZ3JzdmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzAxNDUsImV4cCI6MjEwMTY0NjE0NX0.pIttUdhodN_mrtm12RaHcgogeHy02oEkbGKx_dbo5no'; 
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -316,7 +328,7 @@
             const masonryContainer = document.getElementById('masonry-grid');
             
             try {
-                // Fetch all rows from your 'projects' table (Removed .order() to bypass schema errors)
+                // Fetch all rows from your 'projects' table
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
                     .select('*');
