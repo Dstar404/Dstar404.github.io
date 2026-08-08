@@ -62,9 +62,21 @@
         
         /* Mobile Menu Fix */
         @media (max-width: 768px) {
-            nav { padding: 15px 5%; justify-content: center; }
-            .menu { gap: 15px; flex-wrap: wrap; justify-content: center; }
-            .menu a { font-size: 0.85rem; }
+            nav { 
+                padding: 15px 5%; 
+                flex-direction: row; /* บังคับให้อยู่บรรทัดเดียวกัน */
+                justify-content: space-between; /* ดัน DAO ไปซ้ายสุด และเมนูไปขวาสุด */
+                align-items: center;
+            }
+            .nav-logo {
+                font-size: 1.2rem; /* ปรับขนาด DAO ให้พอดีกับจอมือถือ */
+            }
+            .menu { 
+                gap: 12px; 
+                flex-wrap: wrap; 
+                justify-content: flex-end; 
+            }
+            .menu a { font-size: 0.8rem; }
         }
         
         /* HERO / COVER SECTION */
