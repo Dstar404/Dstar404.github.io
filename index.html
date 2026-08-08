@@ -501,7 +501,7 @@
             try {
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
-                    .select('*');
+                    .select('*')
                     .order('created_at', { ascending: false });
 
                 if (error) {
