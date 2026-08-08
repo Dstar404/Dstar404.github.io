@@ -87,6 +87,30 @@
             align-items: center;
             justify-content: space-between;
             gap: 40px;
+            position: relative; /* 1. เพิ่มบรรทัดนี้ เพื่อให้ข้อความพื้นหลังอ้างอิงตำแหน่งจากกล่องนี้ */
+            overflow: hidden; /* 2. เพิ่มบรรทัดนี้ ป้องกันไม่ให้ข้อความที่ใหญ่เกินไปล้นจอจนเกิด Scrollbar */
+        }
+
+        /* 3. เพิ่มบล็อกนี้เข้าไปใหม่ทั้งหมด (สร้างข้อความลายน้ำ) */
+        #hero::before {
+            content: "GRAPHIC DESIGN";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg); /* เอียง 45 องศา */
+            font-size: 18vw; /* ขนาดตัวอักษรใหญ่ตามสัดส่วนจอ */
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.08); /* ความโปร่งใส (ปรับเลข 0.08 เป็น 0.25 ได้ถ้าต้องการให้สว่างขึ้น) */
+            white-space: nowrap;
+            pointer-events: none; /* ป้องกันไม่ให้เมาส์ไปโดนข้อความนี้แล้วขัดขวางการคลิกปุ่ม */
+            z-index: 0; /* ดันไปอยู่ชั้นล่างสุด */
+            user-select: none;
+        }
+
+        /* 4. เพิ่มบล็อกนี้ เพื่อดึงเนื้อหาหลัก (ข้อความและรูปภาพ) ให้ลอยอยู่เหนือข้อความพื้นหลัง */
+        .hero-left, .hero-right {
+            position: relative;
+            z-index: 1;
         }
         .hero-left {
             flex: 1;
