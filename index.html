@@ -100,10 +100,11 @@
             transform: translate(-50%, -50%) rotate(-45deg); /* เอียง 45 องศา */
             font-size: 18vw; /* ขนาดตัวอักษรใหญ่ตามสัดส่วนจอ */
             font-weight: 900;
-            color: rgba(255, 255, 255, 0.08); /* ความโปร่งใส (ปรับเลข 0.08 เป็น 0.25 ได้ถ้าต้องการให้สว่างขึ้น) */
+            color: transparent;
+            -webkit-text-stroke: 3px rgba(255, 215, 0, 0.2);
             white-space: nowrap;
-            pointer-events: none; /* ป้องกันไม่ให้เมาส์ไปโดนข้อความนี้แล้วขัดขวางการคลิกปุ่ม */
-            z-index: 0; /* ดันไปอยู่ชั้นล่างสุด */
+            pointer-events: none; 
+            z-index: 0; 
             user-select: none;
         }
 
