@@ -43,8 +43,15 @@
         /* 3. Navigation Bar */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
-            display: flex; justify-content: flex-end; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; /* เปลี่ยนเป็น space-between */
             background: rgba(10, 10, 10, 0.95); z-index: 1000; border-bottom: 1px solid #222;
+        }
+        .nav-logo {
+            color: var(--yellow);
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-decoration: none;
+            letter-spacing: 2px;
         }
         .menu { list-style: none; display: flex; gap: 30px; }
         .menu a { 
@@ -319,6 +326,7 @@
     
     <!-- Navigation -->
     <nav>
+        <a href="#hero" class="nav-logo hover-target">DAO</a>
         <ul class="menu">
             <li><a href="#hero" class="hover-target">Home</a></li>
             <li><a href="#work" class="hover-target">Archive</a></li>
