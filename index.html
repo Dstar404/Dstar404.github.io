@@ -530,7 +530,7 @@
                         const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&q=70&output=webp`;
                         
                         card.innerHTML = `
-                            <img src="${thumbUrl}" data-highres="${item.media_url}" alt="${item.title}" loading="lazy">
+                           <img src="${thumbUrl}" data-highres="${item.media_url}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src=this.getAttribute('data-highres');">
                             <div class="item-info">${item.title}</div>
                         `;
                     }
