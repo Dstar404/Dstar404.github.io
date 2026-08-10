@@ -6,9 +6,9 @@
     
     <!-- IMPROVEMENT 3: Professional Link Previews (Open Graph Meta Tags) -->
     <meta property="og:title" content="Dao - Graphic Designer Portfolio">
-    <meta property="og:description" content="Professional portfolio of Dao. Specializing in commercial marketing visuals, logos, signage, and dynamic media.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=80">
-    <meta property="og:url" content="https://your-portfolio-link.com">
+    <meta property="og:description" content="Portfolio of Dao. Experience in commercial marketing visuals, logos, signage, and dynamic media.">
+    <meta property="og:image" content="portrait.png auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:url" content="https://dstar404.github.io">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <!-- =============================================================== -->
@@ -317,16 +317,21 @@
             background: var(--yellow); color: #000; border-color: var(--yellow); 
         }
         
-        /* IMPROVEMENT 2: True Uniform Square Grid Layout */
+        /* Pinterest-Style Masonry Layout */
         .masonry { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
+            display: flex; 
+            align-items: flex-start;
             gap: 20px; 
-            align-items: start; 
         }
-        @media (max-width: 900px) { .masonry { grid-template-columns: repeat(2, 1fr); } }
+        .masonry-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
         @media (max-width: 600px) { 
-            .masonry { grid-template-columns: repeat(2, 1fr); gap: 10px; } 
+            .masonry { gap: 10px; } 
+            .masonry-col { gap: 10px; }
         }
         
         .item { 
@@ -338,21 +343,20 @@
             transition: border-color 0.2s;
             display: flex;
             flex-direction: column;
+            width: 100%; /* Fills the column */
         }
         .item:hover { border-color: var(--yellow); }
         
-        /* New Image Wrapper for perfectly uniform 1:1 squares */
+        /* Image Wrapper for natural ratio */
         .item-img-wrap {
             width: 100%;
-            aspect-ratio: 1 / 1;
             position: relative;
             overflow: hidden;
             background: #0d0d0d;
         }
         .item-img-wrap img { 
             width: 100%; 
-            height: 100%;
-            object-fit: cover; /* This makes it fill the square without stretching! */
+            height: auto; /* Natural aspect ratio! */
             display: block; 
             pointer-events: none;
             transition: transform 0.4s ease;
@@ -648,29 +652,28 @@
                 return;
             }
 
-            // 4. RENDER HTML
-            paginatedItems.forEach(item => {
+            // 4. RENDER HTML (JS Column Distribution for Pinterest Layout)
+            let colCount = window.innerWidth <= 900 ? 2 : 3;
+            let columns = [];
+            for (let i = 0; i < colCount; i++) {
+                let colDiv = document.createElement('div');
+                colDiv.className = 'masonry-col';
+                columns.push(colDiv);
+                masonryContainer.appendChild(colDiv);
+            }
+
+            paginatedItems.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = `item ${item.category || 'all'} hover-target`;
 
                 if (item.media_type === 'video') {
-                    // IMPROVEMENT 1: Video Performance (Static Thumbnail + Play Overlay)
                     let thumbUrl = item.thumbnail_url;
-                    
-                    // Attempt to auto-grab YouTube Thumbnail if no custom thumbnail was provided
                     if (!thumbUrl && item.media_url.includes('youtube.com/embed/')) {
                         const ytMatch = item.media_url.match(/embed\/([^?]+)/);
-                        if (ytMatch) {
-                            thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
-                        }
+                        if (ytMatch) thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
                     }
-                    
-                    // Fallback to a dark placeholder if it's Vimeo/etc and no thumbnail_url is found
-                    if (!thumbUrl) {
-                        thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
-                    }
+                    if (!thumbUrl) thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
 
-                    // We store the iframe link in data-video, so the Lightbox knows what to play!
                     card.innerHTML = `
                         <div class="item-img-wrap" data-video="${item.media_url}">
                             <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'">
@@ -679,10 +682,9 @@
                         <div class="item-info">${item.title}</div>
                     `;
                 } else {
-                    // Uses wsrv.nl to heavily compress the thumbnail, and perfectly crop it to 600x600 square!
-                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&h=600&fit=cover&q=70&output=webp`;
+                    // Removed height/crop parameters to allow natural Pinterest-style aspect ratios!
+                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&q=70&output=webp`;
                     
-                    // We store the raw image link in data-highres
                     card.innerHTML = `
                         <div class="item-img-wrap" data-highres="${item.media_url}">
                             <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
@@ -691,7 +693,8 @@
                     `;
                 }
 
-                masonryContainer.appendChild(card);
+                // Distribute items left-to-right into the columns
+                columns[index % colCount].appendChild(card);
             });
 
             initLightboxEvents();
@@ -724,6 +727,16 @@
         // ==========================================
         // 3. UI, EVENT LISTENERS & LIGHTBOX LOGIC
         // ==========================================
+        
+        // Handle window resizing to adjust columns
+        let windowCols = window.innerWidth <= 900 ? 2 : 3;
+        window.addEventListener('resize', () => {
+            let newCols = window.innerWidth <= 900 ? 2 : 3;
+            if (newCols !== windowCols) {
+                windowCols = newCols;
+                renderProjects();
+            }
+        });
         
         // Custom Mouse Circle Logic
         const cursor = document.getElementById('cursor');
