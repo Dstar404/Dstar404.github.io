@@ -557,7 +557,7 @@
         </div>
     </section>
 
-  <!-- Supabase JS Client -->
+<!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -574,9 +574,15 @@
         // ==========================================
         let allProjects = [];
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 30; // ลดจำนวนการแสดงผลต่อหน้าจาก 50 เป็น 30
+        const ITEMS_PER_PAGE = 30; 
         let currentFilter = 'all';
         let currentSort = 'desc';
+
+        // Lightbox Elements
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        const lbVideo = document.getElementById('lb-video');
+        const closeBtn = document.querySelector('.close-btn');
 
         async function loadArchiveFromSupabase() {
             const masonryContainer = document.getElementById('masonry-grid');
@@ -592,6 +598,7 @@
                 }
 
                 allProjects = projects || [];
+                prepareDOMElements(); // แปลงข้อมูลเป็น HTML เก็บไว้ครั้งเดียว
                 renderProjects();
 
             } catch (err) {
@@ -600,45 +607,9 @@
             }
         }
 
-        function renderProjects() {
-            const masonryContainer = document.getElementById('masonry-grid');
-            masonryContainer.innerHTML = '';
-
-            // 1. FILTERING
-            let filtered = allProjects;
-            if (currentFilter !== 'all') {
-                filtered = allProjects.filter(item => item.category === currentFilter);
-            }
-
-            // 2. SORTING (using created_at column)
-            filtered.sort((a, b) => {
-                let dateA = new Date(a.created_at || 0).getTime();
-                let dateB = new Date(b.created_at || 0).getTime();
-                return currentSort === 'desc' ? dateB - dateA : dateA - dateB;
-            });
-
-            // 3. PAGINATION (Slice array for max 30 per page)
-            const totalItems = filtered.length;
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-            if (paginatedItems.length === 0) {
-                masonryContainer.innerHTML = '<div class="loading-text">No items found for this category.</div>';
-                renderPagination(0);
-                return;
-            }
-
-            // 4. RENDER HTML (JS Column Distribution for Pinterest Layout)
-            let colCount = window.innerWidth <= 900 ? 2 : 3;
-            let columns = [];
-            for (let i = 0; i < colCount; i++) {
-                let colDiv = document.createElement('div');
-                colDiv.className = 'masonry-col';
-                columns.push(colDiv);
-                masonryContainer.appendChild(colDiv);
-            }
-
-            paginatedItems.forEach((item, index) => {
+        // ฟังก์ชันใหม่: สร้างแท็ก HTML เก็บไว้ล่วงหน้าเพื่อไม่ให้รูปต้องโหลดซ้ำ
+        function prepareDOMElements() {
+            allProjects.forEach(item => {
                 const card = document.createElement('div');
                 card.className = `item ${item.category || 'all'} hover-target`;
 
@@ -658,9 +629,7 @@
                         <div class="item-info">${item.title}</div>
                     `;
                 } else {
-                    // ปรับความกว้าง w=300 และ Quality q=40 เพื่อบีบอัดภาพ
                     const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=300&q=40&output=webp`;
-                    
                     card.innerHTML = `
                         <div class="item-img-wrap" data-highres="${item.media_url}">
                             <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
@@ -669,11 +638,72 @@
                     `;
                 }
 
-                // Distribute items left-to-right into the columns
-                columns[index % colCount].appendChild(card);
+                // ผูก Event การคลิกดูรูปใหญ่ (Lightbox) ไว้ที่การ์ดเลย
+                card.addEventListener('click', () => {
+                    const wrap = card.querySelector('.item-img-wrap');
+                    if (!wrap) return;
+                    
+                    lbImg.classList.remove('active');
+                    lbVideo.classList.remove('active');
+                    
+                    if (wrap.hasAttribute('data-video')) {
+                        lbVideo.src = wrap.getAttribute('data-video');
+                        lbVideo.classList.add('active');
+                    } else if (wrap.hasAttribute('data-highres')) {
+                        lbImg.src = wrap.getAttribute('data-highres');
+                        lbImg.classList.add('active');
+                    }
+                    
+                    lightbox.classList.add('active');
+                });
+
+                item.element = card; // เก็บ HTML นี้ผูกไว้กับข้อมูลชุดนั้น
+            });
+        }
+
+        function renderProjects() {
+            const masonryContainer = document.getElementById('masonry-grid');
+            masonryContainer.innerHTML = ''; // ล้างเฉพาะคอลัมน์เปล่าๆ
+
+            // 1. FILTERING
+            let filtered = allProjects;
+            if (currentFilter !== 'all') {
+                filtered = allProjects.filter(item => item.category === currentFilter);
+            }
+
+            // 2. SORTING
+            filtered.sort((a, b) => {
+                let dateA = new Date(a.created_at || 0).getTime();
+                let dateB = new Date(b.created_at || 0).getTime();
+                return currentSort === 'desc' ? dateB - dateA : dateA - dateB;
             });
 
-            initLightboxEvents();
+            // 3. PAGINATION
+            const totalItems = filtered.length;
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+            if (paginatedItems.length === 0) {
+                masonryContainer.innerHTML = '<div class="loading-text">No items found for this category.</div>';
+                renderPagination(0);
+                return;
+            }
+
+            // 4. สร้างคอลัมน์เปล่า
+            let colCount = window.innerWidth <= 900 ? 2 : 3;
+            let columns = [];
+            for (let i = 0; i < colCount; i++) {
+                let colDiv = document.createElement('div');
+                colDiv.className = 'masonry-col';
+                columns.push(colDiv);
+                masonryContainer.appendChild(colDiv);
+            }
+
+            // 5. นำ HTML แท็กเดิมที่เคยสร้างไว้ มาใส่กลับเข้าไปในคอลัมน์ (จะไม่โหลดรูปใหม่)
+            paginatedItems.forEach((item, index) => {
+                columns[index % colCount].appendChild(item.element);
+            });
+
             renderPagination(totalItems);
         }
 
@@ -704,7 +734,7 @@
         // 3. UI, EVENT LISTENERS & LIGHTBOX LOGIC
         // ==========================================
         
-        // Handle window resizing to adjust columns
+        // Handle window resizing
         let windowCols = window.innerWidth <= 900 ? 2 : 3;
         window.addEventListener('resize', () => {
             let newCols = window.innerWidth <= 900 ? 2 : 3;
@@ -737,35 +767,6 @@
             });
         }
 
-        // Click-to-View Lightbox Logic
-        const lightbox = document.getElementById('lightbox');
-        const lbImg = document.getElementById('lb-img');
-        const lbVideo = document.getElementById('lb-video');
-        const closeBtn = document.querySelector('.close-btn');
-
-        function initLightboxEvents() {
-            const items = document.querySelectorAll('.item');
-            items.forEach(item => {
-                item.addEventListener('click', () => {
-                    const wrap = item.querySelector('.item-img-wrap');
-                    if (!wrap) return;
-                    
-                    lbImg.classList.remove('active');
-                    lbVideo.classList.remove('active');
-                    
-                    if (wrap.hasAttribute('data-video')) {
-                        lbVideo.src = wrap.getAttribute('data-video');
-                        lbVideo.classList.add('active');
-                    } else if (wrap.hasAttribute('data-highres')) {
-                        lbImg.src = wrap.getAttribute('data-highres');
-                        lbImg.classList.add('active');
-                    }
-                    
-                    lightbox.classList.add('active');
-                });
-            });
-        }
-
         // Close Lightbox
         closeBtn.addEventListener('click', () => {
             lightbox.classList.remove('active');
@@ -779,7 +780,7 @@
             }
         });
 
-        // Initialize Supabase Fetch on Load
+        // Initialize
         loadArchiveFromSupabase();
     </script>
 </body>
