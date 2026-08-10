@@ -580,7 +580,7 @@
         </div>
     </section>
 
-    <!-- Supabase JS Client -->
+  <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -597,7 +597,7 @@
         // ==========================================
         let allProjects = [];
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 50;
+        const ITEMS_PER_PAGE = 30; // [แก้ไข] ลดจำนวนการแสดงผลต่อหน้าจาก 50 เป็น 30
         let currentFilter = 'all';
         let currentSort = 'desc';
 
@@ -605,7 +605,6 @@
             const masonryContainer = document.getElementById('masonry-grid');
             
             try {
-                // Fetch all data without ordering here, we sort locally to support dynamic changes
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
                     .select('*');
@@ -641,7 +640,7 @@
                 return currentSort === 'desc' ? dateB - dateA : dateA - dateB;
             });
 
-            // 3. PAGINATION (Slice array for max 50 per page)
+            // 3. PAGINATION (Slice array for max 30 per page)
             const totalItems = filtered.length;
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
             const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -670,24 +669,24 @@
                     let thumbUrl = item.thumbnail_url;
                     if (!thumbUrl && item.media_url.includes('youtube.com/embed/')) {
                         const ytMatch = item.media_url.match(/embed\/([^?]+)/);
-                        if (ytMatch) thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
+                        if (ytMatch) thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`; // [แก้ไข] ใช้ hqdefault เพื่อโหลดไวขึ้น
                     }
                     if (!thumbUrl) thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
 
                     card.innerHTML = `
                         <div class="item-img-wrap" data-video="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'">
                             <div class="play-icon"></div>
                         </div>
                         <div class="item-info">${item.title}</div>
                     `;
                 } else {
-                    // Removed height/crop parameters to allow natural Pinterest-style aspect ratios!
-                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&q=70&output=webp`;
+                    // [แก้ไข] ปรับความกว้าง w=400 และ Quality q=55 เพื่อบีบอัดภาพใหม่อย่างมีประสิทธิภาพ + ใส่ decoding="async"
+                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=55&output=webp`;
                     
                     card.innerHTML = `
                         <div class="item-img-wrap" data-highres="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
                         </div>
                         <div class="item-info">${item.title}</div>
                     `;
@@ -794,7 +793,6 @@
                     lbImg.classList.remove('active');
                     lbVideo.classList.remove('active');
                     
-                    // Check if it's a video or high-res image
                     if (wrap.hasAttribute('data-video')) {
                         lbVideo.src = wrap.getAttribute('data-video');
                         lbVideo.classList.add('active');
