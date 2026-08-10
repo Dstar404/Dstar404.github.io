@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- IMPROVEMENT 3: Professional Link Previews (Open Graph Meta Tags) -->
+    <meta property="og:title" content="Dao - Graphic Designer Portfolio">
+    <meta property="og:description" content="Professional portfolio of Dao. Specializing in commercial marketing visuals, logos, signage, and dynamic media.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:url" content="https://your-portfolio-link.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- =============================================================== -->
+
     <title>Dao - Portfolio Archive</title>
     <style>
         /* 1. Global Settings & Black/Yellow Theme */
@@ -307,7 +317,7 @@
             background: var(--yellow); color: #000; border-color: var(--yellow); 
         }
         
-        /* Grid Layout (Left-to-Right, Top-to-Bottom) */
+        /* IMPROVEMENT 2: True Uniform Square Grid Layout */
         .masonry { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -321,13 +331,60 @@
         
         .item { 
             background: #1a1a1a; 
-            border-radius: 8px; overflow: hidden; border: 1px solid #333;
+            border-radius: 8px; 
+            overflow: hidden; 
+            border: 1px solid #333;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: border-color 0.2s;
+            display: flex;
+            flex-direction: column;
         }
-        .item:hover { transform: scale(1.02); border-color: var(--yellow); }
-        .item img { width: 100%; display: block; pointer-events: none; }
-        .item iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; pointer-events: none; }
+        .item:hover { border-color: var(--yellow); }
+        
+        /* New Image Wrapper for perfectly uniform 1:1 squares */
+        .item-img-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            overflow: hidden;
+            background: #0d0d0d;
+        }
+        .item-img-wrap img { 
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; /* This makes it fill the square without stretching! */
+            display: block; 
+            pointer-events: none;
+            transition: transform 0.4s ease;
+        }
+        .item:hover .item-img-wrap img {
+            transform: scale(1.05); /* Smooth zoom effect on hover */
+        }
+        
+        /* IMPROVEMENT 1: Video Play Button Overlay */
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--yellow);
+            font-size: 20px;
+            border: 2px solid var(--yellow);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .play-icon::after {
+            content: '▶';
+            margin-left: 4px;
+        }
+
         .item-info { padding: 15px; text-align: center; color: #fff; font-size: 0.95rem; }
         @media (max-width: 600px) { .item-info { padding: 8px; font-size: 0.75rem; } }
         
@@ -426,15 +483,15 @@
                 <h3 class="skills-title">My Skills</h3>
                 <div class="skills">
                     <div class="skill-card hover-target">
-                        <img src="assets/adobe-illustrator-svgrepo-com.svg">
+                        <img src="assets/adobe-illustrator-svgrepo-com.svg" onerror="this.src='https://cdn.simpleicons.org/adobeillustrator/FFD700'">
                         <span>Adobe Illustrator</span>
                     </div>
                     <div class="skill-card hover-target">
-                        <img src="assets/adobe-photoshop-logo-svgrepo-com.svg">
+                        <img src="assets/adobe-photoshop-logo-svgrepo-com.svg" onerror="this.src='https://cdn.simpleicons.org/adobephotoshop/FFD700'">
                         <span>Adobe Photoshop</span>
                     </div>
                     <div class="skill-card hover-target">
-                        <img src="assets/adobe-lightroom-svgrepo-com.svg" alt="Lr">
+                        <img src="assets/adobe-lightroom-svgrepo-com.svg" onerror="this.src='https://cdn.simpleicons.org/adobelightroom/FFD700'">
                         <span>Adobe Lightroom</span>
                     </div>
                     <div class="skill-card hover-target">
@@ -442,11 +499,11 @@
                         <span>Figma</span>
                     </div>
                     <div class="skill-card hover-target">
-                        <img src="assets/canva-icon.svg">
+                        <img src="assets/canva-icon.svg" onerror="this.src='https://cdn.simpleicons.org/canva/FFD700'">
                         <span>Canva</span>
                     </div>
                     <div class="skill-card hover-target">
-                        <img src="assets/clip-studio-paint-logo-vector.svg" alt="CLSP">
+                        <img src="assets/clip-studio-paint-logo-vector.svg" onerror="this.src='https://placehold.co/100x100/111/FFD700?text=CSP'">
                         <span>Clip Studio Paint</span>
                     </div>
                 </div>
@@ -597,17 +654,39 @@
                 card.className = `item ${item.category || 'all'} hover-target`;
 
                 if (item.media_type === 'video') {
+                    // IMPROVEMENT 1: Video Performance (Static Thumbnail + Play Overlay)
+                    let thumbUrl = item.thumbnail_url;
+                    
+                    // Attempt to auto-grab YouTube Thumbnail if no custom thumbnail was provided
+                    if (!thumbUrl && item.media_url.includes('youtube.com/embed/')) {
+                        const ytMatch = item.media_url.match(/embed\/([^?]+)/);
+                        if (ytMatch) {
+                            thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
+                        }
+                    }
+                    
+                    // Fallback to a dark placeholder if it's Vimeo/etc and no thumbnail_url is found
+                    if (!thumbUrl) {
+                        thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
+                    }
+
+                    // We store the iframe link in data-video, so the Lightbox knows what to play!
                     card.innerHTML = `
-                        <iframe src="${item.media_url}" loading="lazy" allowfullscreen></iframe>
+                        <div class="item-img-wrap" data-video="${item.media_url}">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'">
+                            <div class="play-icon"></div>
+                        </div>
                         <div class="item-info">${item.title}</div>
                     `;
                 } else {
-                    // Uses wsrv.nl to heavily compress the thumbnail for fast loading
-                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&q=70&output=webp`;
+                    // Uses wsrv.nl to heavily compress the thumbnail, and perfectly crop it to 600x600 square!
+                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&h=600&fit=cover&q=70&output=webp`;
                     
-                    // Added the onerror fallback just in case the proxy gets blocked
+                    // We store the raw image link in data-highres
                     card.innerHTML = `
-                        <img src="${thumbUrl}" data-highres="${item.media_url}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src=this.getAttribute('data-highres');">
+                        <div class="item-img-wrap" data-highres="${item.media_url}">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
+                        </div>
                         <div class="item-info">${item.title}</div>
                     `;
                 }
@@ -625,7 +704,6 @@
             
             const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
             
-            // If we only have 1 page (50 items or less), hide the pagination completely
             if (totalPages <= 1) return; 
 
             for (let i = 1; i <= totalPages; i++) {
@@ -636,7 +714,6 @@
                 btn.addEventListener('click', () => {
                     currentPage = i;
                     renderProjects();
-                    // Scroll smoothly back to the top of the work section when changing pages
                     document.getElementById('work').scrollIntoView({ behavior: 'smooth' });
                 });
                 
@@ -673,7 +750,7 @@
                 btn.classList.add('active');
                 
                 currentFilter = btn.getAttribute('data-filter');
-                currentPage = 1; // Reset to page 1 when changing categories
+                currentPage = 1; 
                 renderProjects();
             });
         });
@@ -683,7 +760,7 @@
         if (sortSelect) {
             sortSelect.addEventListener('change', (e) => {
                 currentSort = e.target.value;
-                currentPage = 1; // Reset to page 1 when changing sorting
+                currentPage = 1; 
                 renderProjects();
             });
         }
@@ -698,19 +775,19 @@
             const items = document.querySelectorAll('.item');
             items.forEach(item => {
                 item.addEventListener('click', () => {
-                    const img = item.querySelector('img');
-                    const iframe = item.querySelector('iframe');
+                    const wrap = item.querySelector('.item-img-wrap');
+                    if (!wrap) return;
                     
                     lbImg.classList.remove('active');
                     lbVideo.classList.remove('active');
                     
-                    if (img) {
-                        // Open the uncompressed high-resolution image in the lightbox
-                        lbImg.src = img.getAttribute('data-highres') || img.src;
-                        lbImg.classList.add('active');
-                    } else if (iframe) {
-                        lbVideo.src = iframe.src;
+                    // Check if it's a video or high-res image
+                    if (wrap.hasAttribute('data-video')) {
+                        lbVideo.src = wrap.getAttribute('data-video');
                         lbVideo.classList.add('active');
+                    } else if (wrap.hasAttribute('data-highres')) {
+                        lbImg.src = wrap.getAttribute('data-highres');
+                        lbImg.classList.add('active');
                     }
                     
                     lightbox.classList.add('active');
