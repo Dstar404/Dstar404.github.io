@@ -682,7 +682,7 @@
                     `;
                 } else {
                     // [แก้ไข] ปรับความกว้าง w=400 และ Quality q=55 เพื่อบีบอัดภาพใหม่อย่างมีประสิทธิภาพ + ใส่ decoding="async"
-                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=55&output=webp`;
+                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=300&q=40&output=webp`;
                     
                     card.innerHTML = `
                         <div class="item-img-wrap" data-highres="${item.media_url}">
