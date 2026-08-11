@@ -13,7 +13,12 @@
     <meta name="twitter:card" content="summary_large_image">
     <!-- =============================================================== -->
 
-    <title>Dao - Portfolio </title>
+    <!-- IMPROVEMENT 4: Preconnect to external servers for faster loading -->
+    <link rel="preconnect" href="https://kuoxoduwamxlgigrsvfq.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="preconnect" href="https://cdn.simpleicons.org" crossorigin>
+    
+    <title>Dao - Portfolio Archive</title>
     <style>
         /* 1. Global Settings & Black/Yellow Theme */
         :root { 
@@ -32,7 +37,25 @@
         }
         body { overflow-x: hidden; }
         
-        /* 2. Navigation Bar */
+        /* 2. Custom Cursor (Hidden on Mobile) */
+        @media (pointer: fine) {
+            html { cursor: none; }
+        }
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 35px; height: 35px;
+            border: 2px solid var(--yellow); border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
+            z-index: 99999; transition: transform 0.15s ease-out, background-color 0.2s;
+        }
+        .cursor.hovering { 
+            background-color: rgba(255, 215, 0, 0.4); 
+            transform: translate(-50%, -50%) scale(1.5); 
+        }
+        @media (pointer: coarse) {
+            .cursor { display: none !important; }
+        }
+        
+        /* 3. Navigation Bar */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 5%;
             display: flex; justify-content: space-between; align-items: center;
@@ -197,7 +220,7 @@
             .hero-about-text { font-size: 1rem; }
         }
 
-        /* 3. Page Sections */
+        /* 4. Page Sections */
         section.content-section { 
             padding: 80px 5% 50px; 
             display: flex; flex-direction: column; justify-content: center; 
@@ -343,7 +366,6 @@
             pointer-events: none;
             transition: transform 0.4s ease;
         }
-        /* ลบ Hover Zoom Effect ออกแล้ว */
         
         /* IMPROVEMENT 1: Video Play Button Overlay */
         .play-icon {
@@ -390,12 +412,24 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 10000;
             justify-content: center; align-items: center; flex-direction: column;
+            overflow: hidden;
         }
         .lightbox.active { display: flex; }
         .lightbox img, .lightbox iframe {
             max-width: 95%; max-height: 85vh; border-radius: 8px; display: none;
             box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
         }
+        
+        /* ADDED: Zoomable Image Styles */
+        .lightbox img {
+            cursor: zoom-in;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth easing */
+        }
+        .lightbox img.zoomed {
+            transform: scale(2); /* Zoom in 2x */
+            cursor: zoom-out;
+        }
+        
         .lightbox iframe { width: 90%; aspect-ratio: 16/9; }
         .lightbox img.active, .lightbox iframe.active { display: block; }
         .close-btn { 
@@ -403,6 +437,7 @@
             font-size: 40px; color: var(--yellow); cursor: pointer; 
             background: #111; border-radius: 50%; width: 50px; height: 50px;
             display: flex; justify-content: center; align-items: center;
+            z-index: 10001; /* Ensure button stays on top of zoomed image */
         }
         @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
         
@@ -451,7 +486,7 @@
             </div>
         </div>
         <div class="hero-right">
-            <img src="portrait.png" alt="Dao Portrait" class="portrait-img hover-target">
+            <img src="portrait.png" alt="Dao Portrait" class="portrait-img hover-target" fetchpriority="high">
         </div>
     </section>
 
@@ -734,14 +769,18 @@
         // 3. UI, EVENT LISTENERS & LIGHTBOX LOGIC
         // ==========================================
         
-        // Handle window resizing
+        // Handle window resizing (Debounced for Performance)
         let windowCols = window.innerWidth <= 900 ? 2 : 3;
+        let resizeTimer;
         window.addEventListener('resize', () => {
-            let newCols = window.innerWidth <= 900 ? 2 : 3;
-            if (newCols !== windowCols) {
-                windowCols = newCols;
-                renderProjects();
-            }
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                let newCols = window.innerWidth <= 900 ? 2 : 3;
+                if (newCols !== windowCols) {
+                    windowCols = newCols;
+                    renderProjects();
+                }
+            }, 150); // Wait 150ms after resizing stops before recalculating
         });
 
         // Category Filter Logic
@@ -767,16 +806,24 @@
             });
         }
 
+        // ADDED: Toggle zoom on image click
+        lbImg.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from closing the lightbox
+            lbImg.classList.toggle('zoomed');
+        });
+
         // Close Lightbox
         closeBtn.addEventListener('click', () => {
             lightbox.classList.remove('active');
             lbVideo.src = lbVideo.src; 
+            lbImg.classList.remove('zoomed'); // Reset zoom
         });
         
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
                 lightbox.classList.remove('active');
                 lbVideo.src = lbVideo.src; 
+                lbImg.classList.remove('zoomed'); // Reset zoom
             }
         });
 
