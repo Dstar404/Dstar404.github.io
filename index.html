@@ -364,10 +364,14 @@
             height: auto; /* Natural aspect ratio! */
             display: block; 
             pointer-events: none;
-            transition: transform 0.4s ease;
+            opacity: 0; /* Starts hidden for smooth fade-in */
+            transition: opacity 0.5s ease, transform 0.4s ease;
+        }
+        .item-img-wrap img.loaded {
+            opacity: 1; /* Fades in once loaded */
         }
         
-        /* IMPROVEMENT 1: Video Play Button Overlay */
+        /* Video Play Button Overlay */
         .play-icon {
             position: absolute;
             top: 50%;
@@ -415,15 +419,34 @@
             overflow: hidden;
         }
         .lightbox.active { display: flex; }
+        
+        /* Lightbox Arrows */
+        .lb-prev, .lb-next {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            font-size: 40px; color: var(--yellow); cursor: pointer;
+            background: rgba(0,0,0,0.5); width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%; z-index: 10001; user-select: none;
+            transition: background 0.3s;
+        }
+        .lb-prev:hover, .lb-next:hover { background: rgba(255, 215, 0, 0.3); }
+        .lb-prev { left: 20px; }
+        .lb-next { right: 20px; }
+        @media (max-width: 600px) {
+            .lb-prev, .lb-next { width: 40px; height: 40px; font-size: 24px; }
+            .lb-prev { left: 10px; }
+            .lb-next { right: 10px; }
+        }
+
         .lightbox img, .lightbox iframe {
             max-width: 95%; max-height: 85vh; border-radius: 8px; display: none;
             box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
         }
         
-        /* ADDED: Zoomable & Draggable Image Styles */
+        /* Zoomable & Draggable Image Styles */
         .lightbox img {
             cursor: zoom-in;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth easing */
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             user-select: none; 
             -webkit-user-drag: none; 
         }
@@ -441,7 +464,7 @@
             font-size: 40px; color: var(--yellow); cursor: pointer; 
             background: #111; border-radius: 50%; width: 50px; height: 50px;
             display: flex; justify-content: center; align-items: center;
-            z-index: 10001; /* Ensure button stays on top of zoomed image */
+            z-index: 10001; 
         }
         @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
         
@@ -460,6 +483,8 @@
     <!-- Lightbox Overlay -->
     <div id="lightbox" class="lightbox">
         <div class="close-btn">&times;</div>
+        <div class="lb-prev" style="display: none;">&#10094;</div>
+        <div class="lb-next" style="display: none;">&#10095;</div>
         <img id="lb-img" src="" alt="Enlarged View">
         <iframe id="lb-video" src="" allowfullscreen></iframe>
     </div>
@@ -612,6 +637,8 @@
         // 2. DYNAMIC LOGIC: FETCH, FILTER, SORT, PAGINATE
         // ==========================================
         let allProjects = [];
+        let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
+        let currentLightboxIndex = -1;
         let currentPage = 1;
         const ITEMS_PER_PAGE = 30; 
         let currentFilter = 'all';
@@ -622,6 +649,8 @@
         const lbImg = document.getElementById('lb-img');
         const lbVideo = document.getElementById('lb-video');
         const closeBtn = document.querySelector('.close-btn');
+        const prevBtn = document.querySelector('.lb-prev');
+        const nextBtn = document.querySelector('.lb-next');
 
         async function loadArchiveFromSupabase() {
             const masonryContainer = document.getElementById('masonry-grid');
@@ -637,7 +666,7 @@
                 }
 
                 allProjects = projects || [];
-                prepareDOMElements(); // แปลงข้อมูลเป็น HTML เก็บไว้ครั้งเดียว
+                prepareDOMElements(); 
                 renderProjects();
 
             } catch (err) {
@@ -659,9 +688,10 @@
                     }
                     if (!thumbUrl) thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
 
+                    // Added onload and onerror for smooth fade-in
                     card.innerHTML = `
                         <div class="item-img-wrap" data-video="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'; this.classList.add('loaded');">
                             <div class="play-icon"></div>
                         </div>
                         <div class="item-info">${item.title}</div>
@@ -670,28 +700,16 @@
                     const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=600&q=75&output=webp`;
                     card.innerHTML = `
                         <div class="item-img-wrap" data-highres="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres');">
+                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
                         </div>
                         <div class="item-info">${item.title}</div>
                     `;
                 }
 
+                // Bind click to open the Lightbox at the correct index within the current filter
                 card.addEventListener('click', () => {
-                    const wrap = card.querySelector('.item-img-wrap');
-                    if (!wrap) return;
-                    
-                    lbImg.classList.remove('active');
-                    lbVideo.classList.remove('active');
-                    
-                    if (wrap.hasAttribute('data-video')) {
-                        lbVideo.src = wrap.getAttribute('data-video');
-                        lbVideo.classList.add('active');
-                    } else if (wrap.hasAttribute('data-highres')) {
-                        lbImg.src = wrap.getAttribute('data-highres');
-                        lbImg.classList.add('active');
-                    }
-                    
-                    lightbox.classList.add('active');
+                    currentLightboxIndex = globalFilteredItems.indexOf(item);
+                    openLightbox(currentLightboxIndex);
                 });
 
                 item.element = card; 
@@ -712,6 +730,9 @@
                 let dateB = new Date(b.created_at || 0).getTime();
                 return currentSort === 'desc' ? dateB - dateA : dateA - dateB;
             });
+            
+            // Store globally so the Lightbox arrows know what to show next
+            globalFilteredItems = filtered;
 
             const totalItems = filtered.length;
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -799,8 +820,64 @@
                 renderProjects();
             });
         }
+        
+        // --- Lightbox Functions ---
+        
+        function openLightbox(index) {
+            if (index < 0 || index >= globalFilteredItems.length) return;
+            currentLightboxIndex = index;
+            const item = globalFilteredItems[index];
+            
+            lbImg.classList.remove('active', 'zoomed');
+            lbVideo.classList.remove('active');
+            lbVideo.src = ''; 
+            resetZoom();
+            
+            if (item.media_type === 'video') {
+                lbVideo.src = item.media_url;
+                lbVideo.classList.add('active');
+            } else {
+                lbImg.src = item.media_url; 
+                lbImg.classList.add('active');
+            }
+            
+            lightbox.classList.add('active');
+            
+            // Toggle arrows depending on position in the gallery
+            prevBtn.style.display = index === 0 ? 'none' : 'flex';
+            nextBtn.style.display = index === globalFilteredItems.length - 1 ? 'none' : 'flex';
+        }
+        
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lbVideo.src = ''; 
+            resetZoom();
+        }
 
-        // ADDED: Draggable Zoom Logic
+        // Arrow Navigation Listeners
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLightbox(currentLightboxIndex - 1);
+        });
+        
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLightbox(currentLightboxIndex + 1);
+        });
+
+        // Keyboard Navigation (Esc, Left Arrow, Right Arrow)
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                openLightbox(currentLightboxIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+                openLightbox(currentLightboxIndex + 1);
+            }
+        });
+
+        // Draggable Zoom Logic
         let isDragging = false;
         let hasDragged = false;
         let startX, startY;
@@ -816,7 +893,7 @@
 
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (hasDragged) return; // Ignore click if user was dragging
+            if (hasDragged) return; 
             
             if (lbImg.classList.contains('zoomed')) {
                 resetZoom();
@@ -827,7 +904,6 @@
             }
         });
 
-        // Mouse Drag Events
         lbImg.addEventListener('mousedown', (e) => {
             if (!lbImg.classList.contains('zoomed')) return;
             e.preventDefault();
@@ -850,11 +926,10 @@
             if (isDragging) {
                 isDragging = false;
                 lbImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-                setTimeout(() => hasDragged = false, 50); // Reset after click fires
+                setTimeout(() => hasDragged = false, 50); 
             }
         });
 
-        // Touch Drag Events
         lbImg.addEventListener('touchstart', (e) => {
             if (!lbImg.classList.contains('zoomed')) return;
             isDragging = true;
@@ -867,7 +942,7 @@
         window.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             hasDragged = true;
-            e.preventDefault(); // Prevent page scroll
+            e.preventDefault(); 
             translateX = (e.touches[0].clientX - startX) / 2;
             translateY = (e.touches[0].clientY - startY) / 2;
             lbImg.style.transform = `scale(2) translate(${translateX}px, ${translateY}px)`;
@@ -881,18 +956,11 @@
             }
         });
 
-        // Close Lightbox
-        closeBtn.addEventListener('click', () => {
-            lightbox.classList.remove('active');
-            lbVideo.src = lbVideo.src; 
-            resetZoom();
-        });
+        closeBtn.addEventListener('click', closeLightbox);
         
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
-                lightbox.classList.remove('active');
-                lbVideo.src = lbVideo.src; 
-                resetZoom();
+                closeLightbox();
             }
         });
 
