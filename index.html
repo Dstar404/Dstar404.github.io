@@ -742,7 +742,7 @@ const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
 const thumbQuality = window.innerWidth <= 600 ? 55 : 60;
 
 const thumbUrl =
-    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=320&q=55&output=webp`;
+    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=320&q=60&output=jpg`;
 
 const fallbackThumbUrl =
     `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=320&q=45&output=jpg`;
