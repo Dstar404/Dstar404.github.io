@@ -742,7 +742,10 @@ const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
 const thumbQuality = window.innerWidth <= 600 ? 55 : 60;
 
 const thumbUrl =
-    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=${thumbQuality}&output=webp`;
+    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=320&q=55&output=webp`;
+
+const fallbackThumbUrl =
+    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=320&q=45&output=jpg`;
 
 card.innerHTML = `
     <div class="item-img-wrap">
@@ -752,7 +755,15 @@ card.innerHTML = `
             loading="lazy"
             decoding="async"
             onload="this.classList.add('loaded')"
-            onerror="this.onerror=null; this.src='assets/image-placeholder.webp'; this.classList.add('loaded');"
+            onerror="
+                if (!this.dataset.fallback) {
+                    this.dataset.fallback = '1';
+                    this.src = '${fallbackThumbUrl}';
+                } else {
+                    this.src = 'assets/image-placeholder.webp';
+                    this.classList.add('loaded');
+                }
+            "
         >
     </div>
     <div class="item-info">${item.title}</div>
