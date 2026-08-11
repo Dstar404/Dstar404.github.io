@@ -680,54 +680,12 @@
                 }
 
                 allProjects = projects || [];
-                prepareDOMElements(); 
                 renderProjects();
 
             } catch (err) {
                 console.error('Error fetching Supabase data:', err);
                 masonryContainer.innerHTML = `<div class="loading-text" style="color:red;">Failed to load archive: ${err.message || 'Check Browser Console'}</div>`;
             }
-        }
-
-        function prepareDOMElements() {
-            allProjects.forEach(item => {
-                const card = document.createElement('div');
-                card.className = `item ${item.category || 'all'} hover-target`;
-
-                if (item.media_type === 'video') {
-                    let thumbUrl = item.thumbnail_url;
-                    if (!thumbUrl && item.media_url.includes('youtube.com/embed/')) {
-                        const ytMatch = item.media_url.match(/embed\/([^?]+)/);
-                        if (ytMatch) thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
-                    }
-                    if (!thumbUrl) thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
-
-                    // Added onload and onerror for smooth fade-in
-                    card.innerHTML = `
-                        <div class="item-img-wrap" data-video="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'; this.classList.add('loaded');">
-                            <div class="play-icon"></div>
-                        </div>
-                        <div class="item-info">${item.title}</div>
-                    `;
-                } else {
-                    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
-                    card.innerHTML = `
-                        <div class="item-img-wrap" data-highres="${item.media_url}">
-                            <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
-                        </div>
-                        <div class="item-info">${item.title}</div>
-                    `;
-                }
-
-                // Bind click to open the Lightbox at the correct index within the current filter
-                card.addEventListener('click', () => {
-                    currentLightboxIndex = globalFilteredItems.indexOf(item);
-                    openLightbox(currentLightboxIndex);
-                });
-
-                item.element = card; 
-            });
         }
 
         function renderProjects() {
@@ -768,6 +726,44 @@
             }
 
             paginatedItems.forEach((item, index) => {
+                // LAZY DOM CREATION: Only build the HTML when the card is actually on the current page
+                if (!item.element) {
+                    const card = document.createElement('div');
+                    card.className = `item ${item.category || 'all'} hover-target`;
+
+                    if (item.media_type === 'video') {
+                        let thumbUrl = item.thumbnail_url;
+                        if (!thumbUrl && item.media_url.includes('youtube.com/embed/')) {
+                            const ytMatch = item.media_url.match(/embed\/([^?]+)/);
+                            if (ytMatch) thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+                        }
+                        if (!thumbUrl) thumbUrl = 'https://placehold.co/600x600/111/FFD700?text=Play+Video';
+
+                        card.innerHTML = `
+                            <div class="item-img-wrap" data-video="${item.media_url}">
+                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='https://placehold.co/600x600/111/FFD700?text=Play+Video'; this.classList.add('loaded');">
+                                <div class="play-icon"></div>
+                            </div>
+                            <div class="item-info">${item.title}</div>
+                        `;
+                    } else {
+                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
+                        card.innerHTML = `
+                            <div class="item-img-wrap" data-highres="${item.media_url}">
+                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
+                            </div>
+                            <div class="item-info">${item.title}</div>
+                        `;
+                    }
+
+                    card.addEventListener('click', () => {
+                        currentLightboxIndex = globalFilteredItems.indexOf(item);
+                        openLightbox(currentLightboxIndex);
+                    });
+
+                    item.element = card; // Cache the HTML so it never reloads again!
+                }
+                
                 columns[index % colCount].appendChild(item.element);
             });
 
