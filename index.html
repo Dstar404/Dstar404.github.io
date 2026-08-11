@@ -695,8 +695,9 @@
             globalFilteredItems = filtered;
 
             const totalItems = filtered.length;
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            const itemsPerPage = getItemsPerPage();
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
 
             if (paginatedItems.length === 0) {
                 masonryContainer.innerHTML = '<div class="loading-text">No items found for this category.</div>';
@@ -766,7 +767,8 @@
             const paginationContainer = document.getElementById('pagination');
             paginationContainer.innerHTML = '';
             
-            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            const itemsPerPage = getItemsPerPage();
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
             
             if (totalPages <= 1) return; 
 
