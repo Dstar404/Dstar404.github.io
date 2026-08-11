@@ -653,7 +653,9 @@
         const closeBtn = document.querySelector('.close-btn');
         const prevBtn = document.querySelector('.lb-prev');
         const nextBtn = document.querySelector('.lb-next');
-
+        function getItemsPerPage() {
+            return window.innerWidth <= 600 ? 8 : 12; 
+        }
         async function loadArchiveFromSupabase() {
             const masonryContainer = document.getElementById('masonry-grid');
             
