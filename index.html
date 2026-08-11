@@ -337,22 +337,24 @@
         .item:hover { border-color: var(--yellow); }
         
         /* Image Wrapper for natural ratio */
-.item-img-wrap {
-    width: 100%;
-    position: relative;
+        .item-img-wrap {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background: #0d0d0d;
+        }
+        .item-img-wrap img { 
+            width: 100%; 
+            height: auto; /* Natural aspect ratio! */
+                position: relative;
     overflow: hidden;
     background: #0d0d0d;
-    min-height: 150px;
     contain: layout paint;
-}
-.item-img-wrap img {
-    width: 100%;
-    height: auto;
-    display: block;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
+            display: block; 
+            pointer-events: none;
+            opacity: 0; /* Starts hidden for smooth fade-in */
+            transition: opacity 0.5s ease, transform 0.4s ease;
+        }
         .item-img-wrap img.loaded {
             opacity: 1; /* Fades in once loaded */
         }
@@ -753,7 +755,15 @@ card.innerHTML = `
             loading="lazy"
             decoding="async"
             onload="this.classList.add('loaded')"
-        onerror="this.onerror=null; this.src='assets/image-placeholder.webp'; this.classList.add('loaded');"
+            onerror="
+                if (!this.dataset.fallback) {
+                    this.dataset.fallback = '1';
+                    this.src = '${fallbackThumbUrl}';
+                } else {
+                    this.src = 'assets/image-placeholder.webp';
+                    this.classList.add('loaded');
+                }
+            "
         >
     </div>
     <div class="item-info">${item.title}</div>
