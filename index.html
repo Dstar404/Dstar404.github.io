@@ -331,6 +331,8 @@
             display: flex;
             flex-direction: column;
             width: 100%; /* Fills the column */
+                content-visibility: auto;
+    contain-intrinsic-size: 400px;
         }
         .item:hover { border-color: var(--yellow); }
         
@@ -344,6 +346,10 @@
         .item-img-wrap img { 
             width: 100%; 
             height: auto; /* Natural aspect ratio! */
+                position: relative;
+    overflow: hidden;
+    background: #0d0d0d;
+    contain: layout paint;
             display: block; 
             pointer-events: none;
             opacity: 0; /* Starts hidden for smooth fade-in */
@@ -636,7 +642,9 @@
         let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
         let currentLightboxIndex = -1;
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 30; 
+        function getItemsPerPage() {
+    return window.innerWidth <= 600 ? 12 : 30;
+}
         let currentFilter = 'all';
         let currentSort = 'desc';
 
@@ -688,9 +696,10 @@
             // Store globally so the Lightbox arrows know what to show next
             globalFilteredItems = filtered;
 
-            const totalItems = filtered.length;
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+const itemsPerPage = getItemsPerPage();
+const totalItems = filtered.length;
+const startIndex = (currentPage - 1) * itemsPerPage;
+const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
 
             if (paginatedItems.length === 0) {
                 masonryContainer.innerHTML = '<div class="loading-text">No items found for this category.</div>';
@@ -729,13 +738,25 @@
                             <div class="item-info">${item.title}</div>
                         `;
                     } else {
-                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
-                        card.innerHTML = `
-                            <div class="item-img-wrap" data-highres="${item.media_url}">
-                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
-                            </div>
-                            <div class="item-info">${item.title}</div>
-                        `;
+                    const thumbWidth = window.innerWidth <= 600 ? 320 : 400;
+const thumbQuality = window.innerWidth <= 600 ? 55 : 60;
+
+const thumbUrl =
+    `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=${thumbQuality}&output=webp`;
+
+card.innerHTML = `
+    <div class="item-img-wrap">
+        <img
+            src="${thumbUrl}"
+            alt="${item.title}"
+            loading="lazy"
+            decoding="async"
+            onload="this.classList.add('loaded')"
+            onerror="this.onerror=null; this.src='assets/image-placeholder.webp'; this.classList.add('loaded');"
+        >
+    </div>
+    <div class="item-info">${item.title}</div>
+`;
                     }
 
                     card.addEventListener('click', () => {
@@ -756,7 +777,8 @@
             const paginationContainer = document.getElementById('pagination');
             paginationContainer.innerHTML = '';
             
-            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            const itemsPerPage = getItemsPerPage();
+const totalPages = Math.ceil(totalItems / itemsPerPage);
             
             if (totalPages <= 1) return; 
 
