@@ -337,6 +337,7 @@
         /* Image Wrapper for natural ratio */
         .item-img-wrap {
             width: 100%;
+            min-height: 250px; /* Fixes mobile lazy load zero-height bug */
             position: relative;
             overflow: hidden;
             background: #0d0d0d;
@@ -394,6 +395,7 @@
 
         /* Lightbox Overlay for Click-to-View */
         .lightbox {
+            cursor: auto; /* Fix missing cursor on empty space */
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 10000;
@@ -404,6 +406,7 @@
         
         /* Lightbox Arrows */
         .lb-prev, .lb-next {
+            cursor: pointer; /* Ensure pointer is shown */
             position: absolute; top: 50%; transform: translateY(-50%);
             font-size: 40px; color: var(--yellow); cursor: pointer;
             background: rgba(0,0,0,0.5); width: 50px; height: 50px;
@@ -415,7 +418,8 @@
         .lb-prev { left: 20px; }
         .lb-next { right: 20px; }
         @media (max-width: 600px) {
-            .lb-prev, .lb-next { width: 40px; height: 40px; font-size: 24px; }
+            .lb-prev, .lb-next {
+            cursor: pointer; /* Ensure pointer is shown */ width: 40px; height: 40px; font-size: 24px; }
             .lb-prev { left: 10px; }
             .lb-next { right: 10px; }
         }
@@ -454,14 +458,16 @@
         
         .lightbox iframe { width: 90%; aspect-ratio: 16/9; }
         .lightbox img.active, .lightbox iframe.active { display: block; }
-        .close-btn { 
+        .close-btn {
+            cursor: pointer; /* Ensure pointer is shown */ 
             position: absolute; top: 20px; right: 30px; 
             font-size: 40px; color: var(--yellow); cursor: pointer; 
             background: #111; border-radius: 50%; width: 50px; height: 50px;
             display: flex; justify-content: center; align-items: center;
             z-index: 10001; 
         }
-        @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
+        @media (max-width: 600px) { .close-btn {
+            cursor: pointer; /* Ensure pointer is shown */ top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
         
         /* Loading Indicator for Supabase */
         .loading-text {
@@ -636,7 +642,7 @@
         let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
         let currentLightboxIndex = -1;
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 30; 
+         
         let currentFilter = 'all';
         let currentSort = 'desc';
 
@@ -698,13 +704,14 @@
                 return;
             }
 
+            const fragment = document.createDocumentFragment();
             let colCount = window.innerWidth <= 900 ? 2 : 3;
             let columns = [];
             for (let i = 0; i < colCount; i++) {
                 let colDiv = document.createElement('div');
                 colDiv.className = 'masonry-col';
                 columns.push(colDiv);
-                masonryContainer.appendChild(colDiv);
+                fragment.appendChild(colDiv);
             }
 
             paginatedItems.forEach((item, index) => {
@@ -748,6 +755,9 @@
                 
                 columns[index % colCount].appendChild(item.element);
             });
+            
+            // Append everything at once to prevent mobile UI freezing
+            masonryContainer.appendChild(fragment);
 
             renderPagination(totalItems);
         }
