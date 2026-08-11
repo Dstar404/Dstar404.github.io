@@ -420,14 +420,18 @@
             box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
         }
         
-        /* ADDED: Zoomable Image Styles */
+        /* ADDED: Zoomable & Draggable Image Styles */
         .lightbox img {
             cursor: zoom-in;
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth easing */
+            user-select: none; 
+            -webkit-user-drag: none; 
         }
         .lightbox img.zoomed {
-            transform: scale(2); /* Zoom in 2x */
-            cursor: zoom-out;
+            cursor: grab;
+        }
+        .lightbox img.zoomed:active {
+            cursor: grabbing;
         }
         
         .lightbox iframe { width: 90%; aspect-ratio: 16/9; }
@@ -642,7 +646,6 @@
             }
         }
 
-        // ฟังก์ชันใหม่: สร้างแท็ก HTML เก็บไว้ล่วงหน้าเพื่อไม่ให้รูปต้องโหลดซ้ำ
         function prepareDOMElements() {
             allProjects.forEach(item => {
                 const card = document.createElement('div');
@@ -673,7 +676,6 @@
                     `;
                 }
 
-                // ผูก Event การคลิกดูรูปใหญ่ (Lightbox) ไว้ที่การ์ดเลย
                 card.addEventListener('click', () => {
                     const wrap = card.querySelector('.item-img-wrap');
                     if (!wrap) return;
@@ -692,28 +694,25 @@
                     lightbox.classList.add('active');
                 });
 
-                item.element = card; // เก็บ HTML นี้ผูกไว้กับข้อมูลชุดนั้น
+                item.element = card; 
             });
         }
 
         function renderProjects() {
             const masonryContainer = document.getElementById('masonry-grid');
-            masonryContainer.innerHTML = ''; // ล้างเฉพาะคอลัมน์เปล่าๆ
+            masonryContainer.innerHTML = ''; 
 
-            // 1. FILTERING
             let filtered = allProjects;
             if (currentFilter !== 'all') {
                 filtered = allProjects.filter(item => item.category === currentFilter);
             }
 
-            // 2. SORTING
             filtered.sort((a, b) => {
                 let dateA = new Date(a.created_at || 0).getTime();
                 let dateB = new Date(b.created_at || 0).getTime();
                 return currentSort === 'desc' ? dateB - dateA : dateA - dateB;
             });
 
-            // 3. PAGINATION
             const totalItems = filtered.length;
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
             const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -724,7 +723,6 @@
                 return;
             }
 
-            // 4. สร้างคอลัมน์เปล่า
             let colCount = window.innerWidth <= 900 ? 2 : 3;
             let columns = [];
             for (let i = 0; i < colCount; i++) {
@@ -734,7 +732,6 @@
                 masonryContainer.appendChild(colDiv);
             }
 
-            // 5. นำ HTML แท็กเดิมที่เคยสร้างไว้ มาใส่กลับเข้าไปในคอลัมน์ (จะไม่โหลดรูปใหม่)
             paginatedItems.forEach((item, index) => {
                 columns[index % colCount].appendChild(item.element);
             });
@@ -769,7 +766,6 @@
         // 3. UI, EVENT LISTENERS & LIGHTBOX LOGIC
         // ==========================================
         
-        // Handle window resizing (Debounced for Performance)
         let windowCols = window.innerWidth <= 900 ? 2 : 3;
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -780,10 +776,9 @@
                     windowCols = newCols;
                     renderProjects();
                 }
-            }, 150); // Wait 150ms after resizing stops before recalculating
+            }, 150); 
         });
 
-        // Category Filter Logic
         const buttons = document.querySelectorAll('.filter-btn');
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -796,7 +791,6 @@
             });
         });
 
-        // Sort Logic
         const sortSelect = document.getElementById('sort-select');
         if (sortSelect) {
             sortSelect.addEventListener('change', (e) => {
@@ -806,24 +800,99 @@
             });
         }
 
-        // ADDED: Toggle zoom on image click
+        // ADDED: Draggable Zoom Logic
+        let isDragging = false;
+        let hasDragged = false;
+        let startX, startY;
+        let translateX = 0, translateY = 0;
+
+        function resetZoom() {
+            lbImg.classList.remove('zoomed');
+            translateX = 0;
+            translateY = 0;
+            lbImg.style.transform = '';
+            lbImg.style.cursor = 'zoom-in';
+        }
+
         lbImg.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevents the click from closing the lightbox
-            lbImg.classList.toggle('zoomed');
+            e.stopPropagation();
+            if (hasDragged) return; // Ignore click if user was dragging
+            
+            if (lbImg.classList.contains('zoomed')) {
+                resetZoom();
+            } else {
+                lbImg.classList.add('zoomed');
+                lbImg.style.transform = `scale(2) translate(0px, 0px)`;
+                lbImg.style.cursor = 'grab';
+            }
+        });
+
+        // Mouse Drag Events
+        lbImg.addEventListener('mousedown', (e) => {
+            if (!lbImg.classList.contains('zoomed')) return;
+            e.preventDefault();
+            isDragging = true;
+            hasDragged = false;
+            startX = e.clientX - (translateX * 2);
+            startY = e.clientY - (translateY * 2);
+            lbImg.style.transition = 'none';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            hasDragged = true;
+            translateX = (e.clientX - startX) / 2;
+            translateY = (e.clientY - startY) / 2;
+            lbImg.style.transform = `scale(2) translate(${translateX}px, ${translateY}px)`;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                lbImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+                setTimeout(() => hasDragged = false, 50); // Reset after click fires
+            }
+        });
+
+        // Touch Drag Events
+        lbImg.addEventListener('touchstart', (e) => {
+            if (!lbImg.classList.contains('zoomed')) return;
+            isDragging = true;
+            hasDragged = false;
+            startX = e.touches[0].clientX - (translateX * 2);
+            startY = e.touches[0].clientY - (translateY * 2);
+            lbImg.style.transition = 'none';
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            hasDragged = true;
+            e.preventDefault(); // Prevent page scroll
+            translateX = (e.touches[0].clientX - startX) / 2;
+            translateY = (e.touches[0].clientY - startY) / 2;
+            lbImg.style.transform = `scale(2) translate(${translateX}px, ${translateY}px)`;
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                lbImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+                setTimeout(() => hasDragged = false, 50);
+            }
         });
 
         // Close Lightbox
         closeBtn.addEventListener('click', () => {
             lightbox.classList.remove('active');
             lbVideo.src = lbVideo.src; 
-            lbImg.classList.remove('zoomed'); // Reset zoom
+            resetZoom();
         });
         
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
                 lightbox.classList.remove('active');
                 lbVideo.src = lbVideo.src; 
-                lbImg.classList.remove('zoomed'); // Reset zoom
+                resetZoom();
             }
         });
 
