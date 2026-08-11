@@ -337,7 +337,6 @@
         /* Image Wrapper for natural ratio */
         .item-img-wrap {
             width: 100%;
-            min-height: 250px; /* Fixes mobile lazy load zero-height bug */
             position: relative;
             overflow: hidden;
             background: #0d0d0d;
@@ -699,14 +698,13 @@
                 return;
             }
 
-            const fragment = document.createDocumentFragment();
             let colCount = window.innerWidth <= 900 ? 2 : 3;
             let columns = [];
             for (let i = 0; i < colCount; i++) {
                 let colDiv = document.createElement('div');
                 colDiv.className = 'masonry-col';
                 columns.push(colDiv);
-                fragment.appendChild(colDiv);
+                masonryContainer.appendChild(colDiv);
             }
 
             paginatedItems.forEach((item, index) => {
@@ -750,9 +748,6 @@
                 
                 columns[index % colCount].appendChild(item.element);
             });
-            
-            // Append everything at once to prevent mobile UI freezing
-            masonryContainer.appendChild(fragment);
 
             renderPagination(totalItems);
         }
