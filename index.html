@@ -635,9 +635,10 @@
         let allProjects = [];
         let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
         let currentLightboxIndex = -1;
-        let currentPage = 1;
-        const ITEMS_PER_PAGE = 30; 
-        let currentFilter = 'all';
+let currentPage = 1;
+// Desktop gets 25, screens 768px or smaller get 12
+let ITEMS_PER_PAGE = window.innerWidth <= 768 ? 12 : 25; 
+let currentFilter = 'all';
         let currentSort = 'desc';
 
         // Lightbox Elements
@@ -728,9 +729,11 @@
                             </div>
                             <div class="item-info">${item.title}</div>
                         `;
-                    } else {
-                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
-                        card.innerHTML = `
+                 } else {
+    // Check screen width for thumbnail resolution
+    const thumbWidth = window.innerWidth <= 768 ? 320 : 600;
+    const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=60&output=webp`;
+    card.innerHTML = `
                             <div class="item-img-wrap" data-highres="${item.media_url}">
                                 <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
                             </div>
@@ -787,14 +790,23 @@
             if (window.innerWidth === windowWidth) return; 
             windowWidth = window.innerWidth;
             
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                let newCols = windowWidth <= 900 ? 2 : 3;
-                if (newCols !== windowCols) {
-                    windowCols = newCols;
-                    renderProjects();
-                }
-            }, 150); 
+clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        let newCols = windowWidth <= 900 ? 2 : 3;
+        let newItemsPerPage = windowWidth <= 768 ? 12 : 25;
+        
+        // If the column count OR the mobile/desktop layout changes
+        if (newCols !== windowCols || newItemsPerPage !== ITEMS_PER_PAGE) {
+            windowCols = newCols;
+            ITEMS_PER_PAGE = newItemsPerPage;
+            currentPage = 1; // Reset to page 1 to prevent pagination errors
+            
+            // Clear cached elements so it forces the correct thumbnail size to load
+            allProjects.forEach(p => p.element = null); 
+            
+            renderProjects();
+        }
+    }, 150);
         });
 
         const buttons = document.querySelectorAll('.filter-btn');
