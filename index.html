@@ -331,15 +331,12 @@
             display: flex;
             flex-direction: column;
             width: 100%; /* Fills the column */
-                content-visibility: auto;
-    contain-intrinsic-size: 400px;
         }
         .item:hover { border-color: var(--yellow); }
         
         /* Image Wrapper for natural ratio */
         .item-img-wrap {
             width: 100%;
-            min-height: 250px; /* Fixes mobile lazy load zero-height bug */
             position: relative;
             overflow: hidden;
             background: #0d0d0d;
@@ -347,10 +344,6 @@
         .item-img-wrap img { 
             width: 100%; 
             height: auto; /* Natural aspect ratio! */
-                position: relative;
-    overflow: hidden;
-    background: #0d0d0d;
-    contain: layout paint;
             display: block; 
             pointer-events: none;
             opacity: 0; /* Starts hidden for smooth fade-in */
@@ -401,7 +394,6 @@
 
         /* Lightbox Overlay for Click-to-View */
         .lightbox {
-            cursor: auto; /* Fix missing cursor on empty space */
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 10000;
@@ -412,7 +404,6 @@
         
         /* Lightbox Arrows */
         .lb-prev, .lb-next {
-            cursor: pointer; /* Ensure pointer is shown */
             position: absolute; top: 50%; transform: translateY(-50%);
             font-size: 40px; color: var(--yellow); cursor: pointer;
             background: rgba(0,0,0,0.5); width: 50px; height: 50px;
@@ -424,8 +415,7 @@
         .lb-prev { left: 20px; }
         .lb-next { right: 20px; }
         @media (max-width: 600px) {
-            .lb-prev, .lb-next {
-            cursor: pointer; /* Ensure pointer is shown */ width: 40px; height: 40px; font-size: 24px; }
+            .lb-prev, .lb-next { width: 40px; height: 40px; font-size: 24px; }
             .lb-prev { left: 10px; }
             .lb-next { right: 10px; }
         }
@@ -464,16 +454,14 @@
         
         .lightbox iframe { width: 90%; aspect-ratio: 16/9; }
         .lightbox img.active, .lightbox iframe.active { display: block; }
-        .close-btn {
-            cursor: pointer; /* Ensure pointer is shown */ 
+        .close-btn { 
             position: absolute; top: 20px; right: 30px; 
             font-size: 40px; color: var(--yellow); cursor: pointer; 
             background: #111; border-radius: 50%; width: 50px; height: 50px;
             display: flex; justify-content: center; align-items: center;
             z-index: 10001; 
         }
-        @media (max-width: 600px) { .close-btn {
-            cursor: pointer; /* Ensure pointer is shown */ top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
+        @media (max-width: 600px) { .close-btn { top: 10px; right: 15px; width: 40px; height: 40px; font-size: 30px; } }
         
         /* Loading Indicator for Supabase */
         .loading-text {
@@ -648,9 +636,7 @@
         let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
         let currentLightboxIndex = -1;
         let currentPage = 1;
-        function getItemsPerPage() {
-            return window.innerWidth <= 600 ? 12 : 25;
-        }
+        const ITEMS_PER_PAGE = 30; 
         let currentFilter = 'all';
         let currentSort = 'desc';
 
@@ -702,10 +688,9 @@
             // Store globally so the Lightbox arrows know what to show next
             globalFilteredItems = filtered;
 
-            const itemsPerPage = getItemsPerPage();
             const totalItems = filtered.length;
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const paginatedItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
             if (paginatedItems.length === 0) {
                 masonryContainer.innerHTML = '<div class="loading-text">No items found for this category.</div>';
@@ -713,14 +698,13 @@
                 return;
             }
 
-            const fragment = document.createDocumentFragment();
             let colCount = window.innerWidth <= 900 ? 2 : 3;
             let columns = [];
             for (let i = 0; i < colCount; i++) {
                 let colDiv = document.createElement('div');
                 colDiv.className = 'masonry-col';
                 columns.push(colDiv);
-                fragment.appendChild(colDiv);
+                masonryContainer.appendChild(colDiv);
             }
 
             paginatedItems.forEach((item, index) => {
@@ -745,16 +729,10 @@
                             <div class="item-info">${item.title}</div>
                         `;
                     } else {
-                        const isMobile = window.innerWidth <= 600;
-                        const thumbWidth = isMobile ? 320 : 400;
-                        const thumbQuality = 60;
-
-                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=${thumbQuality}&output=webp`;
-                        const fallbackThumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=45&output=jpeg`;
-
+                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
                         card.innerHTML = `
                             <div class="item-img-wrap" data-highres="${item.media_url}">
-                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src = '${fallbackThumbUrl}'; } else { this.src = 'https://placehold.co/400x400/111/FFD700?text=Preview+Unavailable'; this.classList.add('loaded'); }">
+                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
                             </div>
                             <div class="item-info">${item.title}</div>
                         `;
@@ -770,9 +748,6 @@
                 
                 columns[index % colCount].appendChild(item.element);
             });
-            
-            // Append everything at once to prevent mobile UI freezing
-            masonryContainer.appendChild(fragment);
 
             renderPagination(totalItems);
         }
@@ -781,8 +756,7 @@
             const paginationContainer = document.getElementById('pagination');
             paginationContainer.innerHTML = '';
             
-            const itemsPerPage = getItemsPerPage();
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
             
             if (totalPages <= 1) return; 
 
