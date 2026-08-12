@@ -331,6 +331,8 @@
             display: flex;
             flex-direction: column;
             width: 100%; /* Fills the column */
+                content-visibility: auto;
+    contain-intrinsic-size: 400px;
         }
         .item:hover { border-color: var(--yellow); }
         
@@ -345,6 +347,10 @@
         .item-img-wrap img { 
             width: 100%; 
             height: auto; /* Natural aspect ratio! */
+                position: relative;
+    overflow: hidden;
+    background: #0d0d0d;
+    contain: layout paint;
             display: block; 
             pointer-events: none;
             opacity: 0; /* Starts hidden for smooth fade-in */
@@ -642,7 +648,9 @@
         let globalFilteredItems = []; // Tracks currently displayed items for Gallery Navigation
         let currentLightboxIndex = -1;
         let currentPage = 1;
-         
+        function getItemsPerPage() {
+            return window.innerWidth <= 600 ? 12 : 25;
+        }
         let currentFilter = 'all';
         let currentSort = 'desc';
 
@@ -694,8 +702,8 @@
             // Store globally so the Lightbox arrows know what to show next
             globalFilteredItems = filtered;
 
-            const totalItems = filtered.length;
             const itemsPerPage = getItemsPerPage();
+            const totalItems = filtered.length;
             const startIndex = (currentPage - 1) * itemsPerPage;
             const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -737,10 +745,16 @@
                             <div class="item-info">${item.title}</div>
                         `;
                     } else {
-                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=400&q=60&output=webp`;
+                        const isMobile = window.innerWidth <= 600;
+                        const thumbWidth = isMobile ? 320 : 400;
+                        const thumbQuality = 60;
+
+                        const thumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=${thumbQuality}&output=webp`;
+                        const fallbackThumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(item.media_url)}&w=${thumbWidth}&q=45&output=jpeg`;
+
                         card.innerHTML = `
                             <div class="item-img-wrap" data-highres="${item.media_url}">
-                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src=this.closest('.item-img-wrap').getAttribute('data-highres'); this.classList.add('loaded');">
+                                <img src="${thumbUrl}" alt="${item.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src = '${fallbackThumbUrl}'; } else { this.src = 'https://placehold.co/400x400/111/FFD700?text=Preview+Unavailable'; this.classList.add('loaded'); }">
                             </div>
                             <div class="item-info">${item.title}</div>
                         `;
