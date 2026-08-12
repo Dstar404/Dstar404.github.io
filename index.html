@@ -652,11 +652,10 @@ let currentFilter = 'all';
         async function loadArchiveFromSupabase() {
             const masonryContainer = document.getElementById('masonry-grid');
             
-          try {
-                // Only download the exact columns the HTML needs to build the cards
+            try {
                 const { data: projects, error } = await supabaseClient
                     .from('projects')
-                    .select('title, category, media_type, media_url, thumbnail_url, created_at');
+                    .select('*');
 
                 if (error) {
                     console.error('Supabase API Error:', error);
