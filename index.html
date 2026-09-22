@@ -307,25 +307,14 @@
 
             /** 
              * ==========================================
-             * 2. DATA MANAGEMENT (Fetch & Session Cache)
+             * 2. DATA MANAGEMENT (Live Fetch)
              * ==========================================
-             * Fetches data from session storage if available, 
-             * otherwise queries the Supabase database.
+             * Fetches data directly from the Supabase database
+             * on every page load to ensure updates are visible.
              */
             async function loadPortfolioData() {
                 const masonryContainer = document.getElementById('masonry-grid');
-                const CACHE_KEY = 'dao_portfolio_data';
 
-                // Check local session cache first to eliminate network delay on reload
-                const cachedData = sessionStorage.getItem(CACHE_KEY);
-                
-                if (cachedData) {
-                    allProjects = JSON.parse(cachedData);
-                    renderGallery();
-                    return;
-                }
-
-                // If no cache, fetch entirely from Database
                 try {
                     const { data: projects, error } = await supabaseClient
                         .from('projects')
@@ -335,18 +324,15 @@
 
                     allProjects = projects || [];
                     
-                    // Save to cache for the current browser session
-                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(allProjects));
-                    
                     renderGallery();
-} catch (err) {
-    console.error('Database Error:', err);
-    masonryContainer.innerHTML = `
-        <div class="loading-text" style="color:#aaa;">
-            Portfolio archive is temporarily offline for maintenance.<br>
-            <a href="cv.pdf" target="_blank" style="color: var(--yellow); text-decoration: none; margin-top: 15px; display: inline-block;">View my CV instead</a>
-        </div>`;
-}
+                } catch (err) {
+                    console.error('Database Error:', err);
+                    masonryContainer.innerHTML = `
+                        <div class="loading-text" style="color:#aaa;">
+                            Portfolio archive is temporarily offline for maintenance.<br>
+                            <a href="cv.pdf" target="_blank" style="color: var(--yellow); text-decoration: none; margin-top: 15px; display: inline-block;">View my CV instead</a>
+                        </div>`;
+                }
             }
 
 
