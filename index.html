@@ -339,10 +339,14 @@
                     sessionStorage.setItem(CACHE_KEY, JSON.stringify(allProjects));
                     
                     renderGallery();
-                } catch (err) {
-                    console.error('Database Error:', err);
-                    masonryContainer.innerHTML = `<div class="loading-text" style="color:red;">Failed to load data. Please refresh.</div>`;
-                }
+} catch (err) {
+    console.error('Database Error:', err);
+    masonryContainer.innerHTML = `
+        <div class="loading-text" style="color:#aaa;">
+            Portfolio archive is temporarily offline for maintenance.<br>
+            <a href="cv.pdf" target="_blank" style="color: var(--yellow); text-decoration: none; margin-top: 15px; display: inline-block;">View my CV instead</a>
+        </div>`;
+}
             }
 
 
