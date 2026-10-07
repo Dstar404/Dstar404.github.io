@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Runs every Monday, Wednesday, and Friday at midnight
+    - cron: '0 0 * * 1,3,5' 
+  workflow_dispatch: # Allows you to run it manually if you want
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Projects Table
+        run: |
+          curl -X GET 'https://kuoxoduwamxlgigrsvfq.supabase.co/rest/v1/projects?select=*&limit=1' \
+          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
